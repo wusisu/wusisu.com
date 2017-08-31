@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh"><generator uri="https://jekyllrb.com/" version="3.4.5">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh" /><updated>2017-08-31T17:11:14+08:00</updated><id>/</id><title type="html">Sunmile | 吴思稣</title><subtitle>思麦阳光</subtitle><author><name>吴思稣</name><email>i@wusisu.com</email></author><entry><title type="html">搭建你自己的 VPN 和 SS</title><link href="/blog/2017/05/11/build-vpn-and-shadownsocks/" rel="alternate" type="text/html" title="搭建你自己的 VPN 和 SS" /><published>2017-05-11T18:29:38+08:00</published><updated>2017-05-11T18:29:38+08:00</updated><id>/blog/2017/05/11/build-vpn-and-shadownsocks</id><content type="html" xml:base="/blog/2017/05/11/build-vpn-and-shadownsocks/">&lt;p&gt;想搭建自己的 vpn 和 ss 吗？&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-ss&quot;&gt;SS&lt;/h2&gt;
+
+&lt;p&gt;[1] https://teddysun.com/342.html&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget --no-check-certificate -O shadowsocks.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks.sh
+chmod +x shadowsocks.sh
+./shadowsocks.sh 2&amp;gt;&amp;amp;1 | tee shadowsocks.log
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;即可。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-vpn&quot;&gt;VPN&lt;/h2&gt;
+
+&lt;p&gt;[2] https://quericy.me/blog/860/
+[3] https://github.com/quericy/one-key-ikev2-vpn&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-看自己是什么虚拟机&quot;&gt;看自己是什么虚拟机&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget -N --no-check-certificate https://raw.githubusercontent.com/91yun/code/master/vm_check.sh &amp;amp;&amp;amp; bash vm_check.sh
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;heading-用-acmesh-来做申请-ssl-key&quot;&gt;用 acme.sh 来做申请 ssl key&lt;/h3&gt;
+
+&lt;h4 id=&quot;heading-安装-acmesh&quot;&gt;安装 acme.sh&lt;/h4&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl https://get.acme.sh | sh
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;需要重新登录或者重加载配置，以使用 acme.sh 快捷命令&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-申请-ssl-key&quot;&gt;申请 ssl key&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;acme.sh --issue --standalone -d hk.wusisu.com
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;heading-用-one-key-ikev2-vpn-来部署-vpn&quot;&gt;用 one-key-ikev2-vpn 来部署 vpn&lt;/h3&gt;
+
+&lt;h4 id=&quot;heading-拷贝-key&quot;&gt;拷贝 key&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cp ~/.acme.sh/hk.wusisu.com/{ca.cer hk.wusisu.com.cer hk.wusisu.com.key} .
+mv ca.cer ca.cert.pem
+mv hk.wusisu.com.cer server.cert.pem
+mv hk.wusisu.com.key server.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;heading-一键安装&quot;&gt;一键安装&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget --no-check-certificate https://raw.githubusercontent.com/quericy/one-key-ikev2-vpn/master/one-key-ikev2.sh
+chmod +x one-key-ikev2.sh
+bash one-key-ikev2.sh
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;heading-设置自己-renew&quot;&gt;设置自己 renew&lt;/h3&gt;
+
+&lt;h4 id=&quot;heading-key-renew&quot;&gt;key renew&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;acme.sh --days 30 --renew --standalone -d hk.wusisu.com
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;heading-编辑-cp_keysh&quot;&gt;编辑 cp_key.sh&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#! /bin/bash&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;cert_file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/root/.acme.sh/hk.wusisu.com/hk.wusisu.com.cer&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;key_file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/root/.acme.sh/hk.wusisu.com/hk.wusisu.com.key&quot;&lt;/span&gt;
+
+sudo cp -f &lt;span class=&quot;nv&quot;&gt;$cert_file&lt;/span&gt; /usr/local/etc/ipsec.d/certs/server.cert.pem
+sudo cp -f &lt;span class=&quot;nv&quot;&gt;$key_file&lt;/span&gt; /usr/local/etc/ipsec.d/private/server.pem
+sudo cp -f &lt;span class=&quot;nv&quot;&gt;$cert_file&lt;/span&gt; /usr/local/etc/ipsec.d/certs/client.cert.pem
+sudo cp -f &lt;span class=&quot;nv&quot;&gt;$key_file&lt;/span&gt; /usr/local/etc/ipsec.d/private/client.pem
+sudo /usr/local/sbin/ipsec restart
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;heading-编辑-crontab&quot;&gt;编辑 crontab&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;crontab -e
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;加一行&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;59 02 1 * * bash /root/cp_key.sh &amp;gt; /dev/null
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="vpn" /><category term="ss" /><category term="letsencrypt" /><summary type="html">想搭建自己的 vpn 和 ss 吗？</summary></entry><entry><title type="html">reading-metaphysics-and-western-thinking</title><link href="/blog/2017/01/18/reading-metaphysics-and-western-thinking/" rel="alternate" type="text/html" title="reading-metaphysics-and-western-thinking" /><published>2017-01-18T21:40:05+08:00</published><updated>2017-01-18T21:40:05+08:00</updated><id>/blog/2017/01/18/reading-metaphysics-and-western-thinking</id><content type="html" xml:base="/blog/2017/01/18/reading-metaphysics-and-western-thinking/">&lt;p&gt;2017年01月16日开始阅读谢文郁所著的&lt;a href=&quot;https://book.douban.com/subject/26793140/&quot;&gt;《形而上学与西方思维》&lt;/a&gt;。
+谢文郁挺萌的，竟然跟我是校友，本科就读于中山大学。&lt;/p&gt;
+
+&lt;p&gt;顺便的，阅读一本简单的历史科普书籍&lt;a href=&quot;https://book.douban.com/subject/5366248/&quot;&gt;《你一定爱读的极简欧洲史》&lt;/a&gt;，作为历史上的知识准备。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-每节读后感&quot;&gt;每节读后感&lt;/h2&gt;
+&lt;h3 id=&quot;heading-第一章&quot;&gt;第一章&lt;/h3&gt;
+&lt;p&gt;这是豆瓣拷下来的目录，我按照每一节的目录写读后感。
+总论_ / 二、荷马史诗和神话思维_ / 三、本源概念和经验思维_&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-形而上学是什么&quot;&gt;形而上学是什么&lt;/h4&gt;
+&lt;p&gt;大家其实对形而上学一直有一种片面的认识，主要原因是马克思一直努力在黑它。
+在马哲里，提到形而上学，总是会配上『片面，静止，孤立』地标签，从而凸显出马哲『全面，运动，联系』的特点。
+然而跟中国传统哲学一样，形而上学是西方传统哲学，而且至今，西方依然是在传承这一套哲学系统。
+抱着忽视地态度对待之，显然是不走心的。&lt;/p&gt;
+
+&lt;p&gt;形而上学&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-荷马史诗&quot;&gt;荷马史诗&lt;/h4&gt;
+
+&lt;h4 id=&quot;heading-经验思维和逻辑推理&quot;&gt;经验思维和逻辑推理&lt;/h4&gt;
+
+&lt;h2 id=&quot;heading-目录&quot;&gt;目录&lt;/h2&gt;
+
+&lt;p&gt;第一讲 形而上学的起源_
+一、总论_ / 二、荷马史诗和神话思维_ / 三、本源概念和经验思维_&lt;/p&gt;
+
+&lt;p&gt;第二讲 系动词和论证思维_
+一、巴门尼德的“它是”_ / 二、论证与语言_ / 三、主词界定问题_&lt;/p&gt;
+
+&lt;p&gt;第三讲 寻找真正的善_
+一、回归生存问题_ / 二、生存与善_ / 三、真正的善_ / 四、真理问题_&lt;/p&gt;
+
+&lt;p&gt;第四讲 界定真理概念_
+一、两种认识途径_ / 二、真理标准问题_ / 三、恩典真理论_&lt;/p&gt;
+
+&lt;p&gt;第五讲 情感的赋义功能_
+一、情感指向及其对象的实在性_ / 二、情态句及其真值分配_ / 三、情感与主词界定_ / 四、上帝是可以谈论的吗？_&lt;/p&gt;
+
+&lt;p&gt;第六讲 实在论的抽象存在_
+一、三种对象的实在性问题_ / 二、波菲利之问_ / 三、抽象存在和概念体系&lt;/p&gt;
+
+&lt;p&gt;第七讲 唯名论：回归认识论_
+一、实在论者的困境_ / 二、唯名论出场_ / 三、认识对象问题_&lt;/p&gt;
+
+&lt;p&gt;第八讲 经验论和经验世界_
+一、命名、指称和同一性问题_ / 二、界定经验世界_ / 三、康德的《纯粹理性批判》_ / 四、认识论中的情感因素_&lt;/p&gt;
+
+&lt;p&gt;第九讲 本质和同一性问题_
+一、如何界定一个人？_ / 二、同一性的语言分析_ / 三、语境分析_&lt;/p&gt;
+
+&lt;p&gt;第十讲 主体理性、必然性、可能性_
+一、主体理性主义_ / 二、必然性信念_ / 三、变化与可能性_&lt;/p&gt;
+
+&lt;p&gt;第十一讲 本质与赋义：现象学分析_
+一、本质直观：意义生成过程分析_ / 二、意向性：如何呈现对象？_ / 三、主体和主体间性_&lt;/p&gt;
+
+&lt;p&gt;第十二讲 语言分析：规则与赋义_
+一、语言与世界_ / 二、语言游戏与游戏规则_ / 三、私人语言问题_&lt;/p&gt;
+
+&lt;p&gt;第十三讲 可能世界与偶态分析_
+一、可能世界与实在性_ / 二、可能世界与现实性_ / 三、如何认识可能世界？_&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="metaphysics" /><summary type="html">2017年01月16日开始阅读谢文郁所著的《形而上学与西方思维》。 谢文郁挺萌的，竟然跟我是校友，本科就读于中山大学。</summary></entry><entry><title type="html">西部世界（第一季）</title><link href="/blog/2017/01/15/the-west-world-season-1/" rel="alternate" type="text/html" title="西部世界（第一季）" /><published>2017-01-16T05:19:05+08:00</published><updated>2017-01-16T05:19:05+08:00</updated><id>/blog/2017/01/15/the-west-world-season-1</id><content type="html" xml:base="/blog/2017/01/15/the-west-world-season-1/">&lt;p&gt;刚刚把很黄很暴力的西部世界给看完。&lt;br /&gt;
+我得说，完全没有 &lt;a href=&quot;https://movie.douban.com/subject/5980670/&quot;&gt;POI&lt;/a&gt; 好看啊！！&lt;/p&gt;
+
+&lt;p&gt;核心似乎是在讲机器人三定律，AI 是否有意识。
+本质其实还是讲人心，感觉立意不够新颖。
+说到底，本剧一大亮点是毫无压力的裸露和血腥粗暴，所以看腾讯视频版就毫无意思了。
+至于谜底，感觉在很早就可以看透了……&lt;/p&gt;
+
+&lt;p&gt;关于白帽黑帽 William 这个迷，也有很多人猜出来了。
+我觉得有一个对这里的理解是值得一读的，关于 William 的人格。
+&lt;a href=&quot;https://www.zhihu.com/question/53375142/answer/135034811&quot;&gt;如何评价《西部世界》里的 William 这个角色？&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;不过我得说，西部时期妹子们的衣服也是挺欧式的。&lt;/p&gt;
+
+&lt;p&gt;全局最喜欢的还是女主 Dolores 很比较到位的表情……感觉还是挺不错的。
+另外那个经常黑眼圈的妓女慵懒的样子看起来也挺舒服，就这样。&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="movie" /><summary type="html">刚刚把很黄很暴力的西部世界给看完。 我得说，完全没有 POI 好看啊！！</summary></entry><entry><title type="html">为什么开源项目能得以完成</title><link href="/blog/2016/09/10/why-open-source-project-can-be-completed/" rel="alternate" type="text/html" title="为什么开源项目能得以完成" /><published>2016-09-10T23:47:25+08:00</published><updated>2016-09-10T23:47:25+08:00</updated><id>/blog/2016/09/10/why-open-source-project-can-be-completed</id><content type="html" xml:base="/blog/2016/09/10/why-open-source-project-can-be-completed/">&lt;p&gt;开源项目的开发人员通常是业余的时间在做开发，开发人员和时间都很不稳定，最后却大多都成就了很优秀的作品。
+开源项目有哪些亮点，让其能做到这一切呢？&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;我并无大型项目开发经验，却也读过一些书籍，涉及大型项目协作。软件开发是一个非常依赖知识共享的工作，因此通常而言一个项目组不宜大于 12 人，否则会带来沟通成本急剧上升。于是通常大的项目，通常是拆分成小项目来完成，却又带来对项目全景不了解的问题。
+相对于企业中从上而下的强制拆分，我更欣赏我在 Github 上看到的开源软件开发模式。&lt;/p&gt;
+
+&lt;p&gt;于是我用心去研究开源项目是如何运作的，并列举其成功原因如下：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;优秀的程序员。在软件开发中，人是最重要的。开源项目的开发人员几乎全是最优秀的开发者，有专业的知识体系，有高质量的代码能力，有丰富的经验。同时，开发者也很友善地帮助和支持新人进入项目。&lt;/li&gt;
+  &lt;li&gt;先进的项目管理。开源项目应该是最先重视项目集成/测试能力的。由于开发人员大多是基于兴趣去贡献代码，并无多少项目管理和测试人员，于是很关注如何自动化的测试、集成、部署、发布等。&lt;/li&gt;
+  &lt;li&gt;先进的工具。大多数企业还在使用 CVS，SVN 的时候，开源项目开发者已经率先投入了 Git 的怀抱。而 Github 是软件项目协作的先行者，提供了 Git 仓储、Issue、PR 功能。这些功能为开源项目提供了极大的便利性。&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><summary type="html">开源项目的开发人员通常是业余的时间在做开发，开发人员和时间都很不稳定，最后却大多都成就了很优秀的作品。 开源项目有哪些亮点，让其能做到这一切呢？</summary></entry><entry><title type="html">2016-09-10</title><link href="/blog/2016/09/10/diary/" rel="alternate" type="text/html" title="2016-09-10" /><published>2016-09-10T00:00:00+08:00</published><updated>2016-09-10T00:00:00+08:00</updated><id>/blog/2016/09/10/diary</id><content type="html" xml:base="/blog/2016/09/10/diary/">&lt;p&gt;今天，定下了我的技术上的原则宗旨。
+以及，未来 1~2 年内的目标。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;heading-一个原则&quot;&gt;一个原则&lt;/h2&gt;
+
+&lt;p&gt;最大化开发者的生产力&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-三个目标&quot;&gt;三个目标&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;掌握并优化现有 coding 项目，成为核心开发者。&lt;/li&gt;
+  &lt;li&gt;跟上时代之巅，跟随最先进的开发者和开发方式。&lt;/li&gt;
+  &lt;li&gt;参与开源项目。&lt;/li&gt;
+&lt;/ol&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><summary type="html">今天，定下了我的技术上的原则宗旨。 以及，未来 1~2 年内的目标。</summary></entry><entry><title type="html">关于Java，对象化，Spring/Bean的一些随想</title><link href="/blog/2016/08/16/about-java-objective-spring-bean-and-more/" rel="alternate" type="text/html" title="关于Java，对象化，Spring/Bean的一些随想" /><published>2016-08-17T05:59:58+08:00</published><updated>2016-08-17T05:59:58+08:00</updated><id>/blog/2016/08/16/about-java-objective-spring-bean-and-more</id><content type="html" xml:base="/blog/2016/08/16/about-java-objective-spring-bean-and-more/">&lt;p&gt;最近在全力学习什么叫做Java，什么叫做Spring，什么是Bean。随便写写想法。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;heading-名词王国&quot;&gt;名词王国&lt;/h2&gt;
+&lt;p&gt;首先介绍这篇文章&lt;a href=&quot;http://lcwangchao.github.io/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/2012/07/02/excution_in_the_kingdom_of_nouns/&quot;&gt;名词王国里的死刑（翻译）&lt;/a&gt;，就尽了全力在嘲讽Java的唯对象化编程的。
+在学习Java的过程中，特别是现在在看一个不那么成熟，但已经比较庞大的项目，更加是心有同感。
+这是一切的前提。
+比如一个Restful处理OAuth的api，需要有一个OAuthController, OAuthProvider, OAuthService, OAuthConfig…..
+心累。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-松耦合&quot;&gt;松耦合&lt;/h2&gt;
+&lt;p&gt;Java的问题还不止名词滥用一个。
+另外一个问题是，耦合性过高的问题。为了解决这个问题，Java竭尽脑汁。
+出了Interface，这样，类之间就不那么需要互相依赖了。
+然而，还是需要有一个主控来调用他们，赋值使用的。
+最后是&lt;a href=&quot;https://spring.io/&quot;&gt;Spring&lt;/a&gt;出来统一了天下。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-interface-vs-duck-test&quot;&gt;Interface vs Duck Test&lt;/h2&gt;
+&lt;p&gt;其实Interface和Duck Test（鸭子方法）是一回事。
+鸭子方法解释为：『如果它看起来像鸭子，游泳像鸭子，叫声像鸭子，那么它可能就是只鸭子。』
+Interface就是在事先说好了鸭子应该长得像什么，然后有这些功能的都可以扮演鸭子。
+不知道所谓的AOP编程是不是指这个呢？存疑。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-spring-and-bean&quot;&gt;Spring and Bean&lt;/h2&gt;
+&lt;p&gt;看了一篇&lt;a href=&quot;http://www.cnblogs.com/vicis/p/4750473.html&quot;&gt;博客&lt;/a&gt;，觉得是学Bean最好的方法。
+简单说就是自己最小化的模拟着做了一个Spring的Bean系统，而且还是最新的基于注解（annotation）的。
+我把它给实现并上传到&lt;a href=&quot;https://github.com/wusisu/java-spring-bean-annotation-learn&quot;&gt;github&lt;/a&gt;了。
+简单说，Spring自己有一个注册库。所有注解为Bean的，就是在里面注册了可以用的一个创建实例的方法。
+用@Autowired/@Resource/@Qualifier的，是由Spring控制着往里面装载实例的地方。
+以此达到上述的松耦合。
+但是实际上，实现的方式无非是通过『字符串』或者『类』，归根结底是采用了动态语言的性质。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-javalangreflect-vs-meta-programming&quot;&gt;java.lang.reflect vs meta programming&lt;/h2&gt;
+&lt;p&gt;有一段时间，Ruby的元编程火到到处都是。
+其实Java的反射也是一回事，只是废话比较多，语言比较臃肿。
+现在最新的注解，其实是依赖于反射的。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-java-vs-javascript&quot;&gt;Java vs JavaScript&lt;/h2&gt;
+&lt;p&gt;实话实说，做JavaEE，感觉还不如用JavaScript写。
+当然，写nodejs其实对人的要求更高。
+但是JavaEE好臃肿，代码冗长，体积臃肿。
+相对比，我觉得Java是在细节和底层做了许多优化，比如『静态语言』这一项也看做是优化，而nodejs则是底层随便写。
+然而底层高效的Java如果不好好写顶端的话，就会变得很搞笑了。
+我想写Nodejs。&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="java" /><category term="spring" /><summary type="html">最近在全力学习什么叫做Java，什么叫做Spring，什么是Bean。随便写写想法。</summary></entry><entry><title type="html">使用端口映射帮助开发web服务</title><link href="/blog/2016/06/27/port-mapping-for-developing/" rel="alternate" type="text/html" title="使用端口映射帮助开发web服务" /><published>2016-06-28T01:27:02+08:00</published><updated>2016-06-28T01:27:02+08:00</updated><id>/blog/2016/06/27/port-mapping-for-developing</id><content type="html" xml:base="/blog/2016/06/27/port-mapping-for-developing/">&lt;h2 id=&quot;heading-问题&quot;&gt;问题&lt;/h2&gt;
+
+&lt;p&gt;当前在开发微信公众号的开发服务器，遇到一个问题是：微信希望我的url是某安全域名下的某80端口。
+而我的开发设备在某内网，80端口还被&lt;a href=&quot;http://club.autohome.com.cn/bbs/thread-a-100024-44338780-1.html&quot;&gt;长城宽带&lt;/a&gt;封了。
+怎么办？&lt;/p&gt;
+
+&lt;p&gt;当然我肯定有远端的开发服务器的。
+我之前的做法是：修改代码，上传至远端，部署重启，debug。
+效率十分十分十分慢。&lt;/p&gt;
+
+&lt;p&gt;然而实际上，非常非常简单就能完成远端80端口代理至本机的3000端口。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;heading-解决方案&quot;&gt;解决方案&lt;/h2&gt;
+
+&lt;p&gt;我主要是通过&lt;a href=&quot;https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/&quot;&gt;此文&lt;/a&gt;学习的。&lt;/p&gt;
+
+&lt;p&gt;总而言之&lt;/p&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ssh -NR 80:127.0.0.1:3000 root@dev.server.com
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;就可以了。&lt;/p&gt;
+
+&lt;p&gt;这时候，访问http://dev.server.com/ 就相当于直接访问http://127.0.0.1:3000 。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-nginx&quot;&gt;nginx&lt;/h2&gt;
+&lt;p&gt;当然了，上述要求服务器的80端口不被占用。
+如果有多人使用，或者服务器有80端口使用的情况下。
+通过nginx转发也能轻松实现web开发环境配置。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+        client_max_body_size   10M;
+        client_body_buffer_size   128k;
+
+        server_name dev.server.com;
+
+        index index.html;
+
+        location / {
+                root /website;
+        }
+        location ~ /a/ {
+                rewrite /a/(.*)$ /$1 break;
+                proxy_pass http://localhost:3000;
+        }
+        location ~ /b/ {
+                rewrite /b/(.*)$ /$1 break;
+                proxy_pass http://localhost:3031;
+        }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;这样子的配置
+http://dev.server.com/a/ 就相当于直接访问http://127.0.0.1:3000 。
+http://dev.server.com/b/ 就相当于直接访问http://127.0.0.1:3031 。&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="web developing" /><category term="ssh" /><summary type="html">问题</summary></entry><entry><title type="html">微信Oauth2授权</title><link href="/blog/2016/05/27/wechat-oauth2/" rel="alternate" type="text/html" title="微信Oauth2授权" /><published>2016-05-28T00:34:52+08:00</published><updated>2016-05-28T00:34:52+08:00</updated><id>/blog/2016/05/27/wechat-oauth2</id><content type="html" xml:base="/blog/2016/05/27/wechat-oauth2/">&lt;p&gt;本文是我个人对oauth2的理解。
+&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;p&gt;可以参考阮一峰的&lt;a href=&quot;http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html&quot;&gt;理解OAuth 2.0&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;其实微信采取的Oauth2策略是最复杂的“授权码模式”。&lt;/p&gt;
+
+&lt;p&gt;步奏是这样的：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;我们的app跟用户索要授权。&lt;/li&gt;
+  &lt;li&gt;用户跟微信授权服务器说这件事，微信返回一个code。（微信调用微信内核鉴权，并不需要输入用户名密码。其实像qq的oauth需要通过输入用户名密码登录，那是不对的。因为大部分用户并无法分辨要求登录的页面是钓鱼页面还是https的qq登录页面）&lt;/li&gt;
+  &lt;li&gt;用户把code告诉我们的服务器。&lt;/li&gt;
+  &lt;li&gt;我们的服务器跟微信的服务器对code，同时提供预先在微信设置的应用密码（POST加密传输）。服务器通过应用密码确定我们身份，通过code确定用户授权给我们了。如拿回微信服务器给我们一个用户的access token和一个refresh token。（通常access token存活时间为2小时，refresh token为30天。主要原因是access token会一直带着？）&lt;/li&gt;
+  &lt;li&gt;access token拿去用。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;我们在这基础上加上自己的jwt（json web token）机制。jwt其实是一种session的升级，用localstorage取代session使用的cookies。
+思路如下：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;用户以jwt对我们服务器发起api请求。（有无效可以最简单只通过时间过期，复杂的检测refresh token有效性）无效跳转至6&lt;/li&gt;
+  &lt;li&gt;jwt有效，正常运行。 有需要获取微信的资源的，检测access token有效性。无效跳去4&lt;/li&gt;
+  &lt;li&gt;正常获取。&lt;/li&gt;
+  &lt;li&gt;access token 无效， 通过refresh token更新access token。成功则跳去3&lt;/li&gt;
+  &lt;li&gt;如果refresh token无效，需要重新获取refresh token，则重新进行微信oauth2&lt;/li&gt;
+  &lt;li&gt;通过上述微信oauth2获得用户的openid（跟access token一起返回），access token， refresh token。以openid为主key，储存access token， refresh token。&lt;/li&gt;
+  &lt;li&gt;以openid为key，生成jwt，设置合理时间，并跳转至2&lt;/li&gt;
+&lt;/ol&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="wechat" /><category term="oauth2" /><summary type="html">本文是我个人对oauth2的理解。</summary></entry><entry><title type="html">开发服务器是干嘛的</title><link href="/blog/2016/05/27/what-is-a-develop-server/" rel="alternate" type="text/html" title="开发服务器是干嘛的" /><published>2016-05-28T00:30:37+08:00</published><updated>2016-05-28T00:30:37+08:00</updated><id>/blog/2016/05/27/what-is-a-develop-server</id><content type="html" xml:base="/blog/2016/05/27/what-is-a-develop-server/">&lt;p&gt;上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;heading-代码文件仓储&quot;&gt;代码（文件）仓储&lt;/h3&gt;
+&lt;p&gt;开发服务器最重要的功能是提供仓储功能。我们用的最多的是代码仓储。
+在CVS年代，甚至到SVN的年代，许多中小型开发团队都会配备开发服务器，然后写的代码没问题了，提交上去，ok收工。
+然后CVS和SVN对文本文件和二进制文件的口味比较不挑（我感觉的，git就比较区分两种文件了，而且一般希望不处理二进制文件），会把编译好的安装包，服务器打包文件，文档（doc+jpg），甚至连一些需要预安装的库和程序也打包进来，仓储起来。&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-git&quot;&gt;GIT&lt;/h4&gt;
+&lt;p&gt;我们现在更多的是git。git关注于文本文件的变化，它的观察是以“行”为单位的。
+通常我不希望在我们的git仓储中带上二进制文件如：doc、jpg、png、gif、mp3、avi等，甚至是pdf。（希望用html或者md来代替）
+我们使用针对GIT的SAAS就好了，比如coding.net的git服务。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-开发测试&quot;&gt;开发测试&lt;/h3&gt;
+
+&lt;h4 id=&quot;heading-api&quot;&gt;API&lt;/h4&gt;
+&lt;p&gt;比如我们的API服务器。&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-编译运行&quot;&gt;编译、运行&lt;/h4&gt;
+&lt;p&gt;c++什么的，编译一个程序跑20分钟很正常，在自己机子上跑吗？太浪费时间了。
+搞一个cpu、mem很强的服务器，把代码提交上去，跑编译。对，20分钟是服务器上跑的时间。
+运行，搞个虚拟机来跑跑程序试一下。（我们一般不需要，装一个Firefox就够了。当然如果需要兼容ie，我就把这个任务交给你们这群使用windows的吧！）&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-trace系统&quot;&gt;Trace系统&lt;/h4&gt;
+&lt;p&gt;就是bug追踪什么的。
+像我们发任务啊，以前发任务不用这个，但是他们有工作汇报提交（windows共享）。
+说到文件共享，我们原来公司的切图仔（美工的昵称）会切好图，然后扔到windows共享里，然后大吼一声（或者QQ一抖）：文件放在xxx文件夹里。
+还有一些公司运维相关也会被扔到开发服务器里来。像公司邮箱。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-总结&quot;&gt;总结&lt;/h3&gt;
+&lt;p&gt;在在线服务不成熟、网络慢、协作开发平台几近无的10年前，没有一个开发服务器（一般是本地）的，都不好意思叫研发团队！
+他们也会备份，中小型团队一般每几个月拿个硬盘插到服务器上，拷贝一下。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-远程开发服务器&quot;&gt;远程开发服务器&lt;/h2&gt;
+&lt;p&gt;比如我们的aliyun服务器。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-优点&quot;&gt;优点&lt;/h3&gt;
+&lt;p&gt;远程开发服务器的优势在于远程！
+一般他们会叫做“云服务器”，其实就是自己的一个云主机。
+托管了宽带、cpu、内存、用电。性价比高、稳定、安全。
+文件丢失的可能性降低到原来模式的万分之一。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-缺点&quot;&gt;缺点&lt;/h3&gt;
+&lt;p&gt;唯一不爽的就是占用公网宽带。相对的带来好处是哪里开发都一样。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-干什么&quot;&gt;干什么&lt;/h3&gt;
+&lt;p&gt;上面说的开发服务器该做的一切事情，都可以用远程开发服务器来做。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-代码仓储服务--协作服务&quot;&gt;代码仓储服务 &amp;amp;&amp;amp; 协作服务&lt;/h2&gt;
+&lt;p&gt;如github、如coding.net。
+可以在我们的开发服务器中剥离这些功能。
+毕竟部署和维护这些服务还是挺累人的。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-离岸工作&quot;&gt;离岸工作&lt;/h2&gt;
+&lt;p&gt;其实不管是git仓储、coding.net的协作工具、aliyun的云开发服务器。
+我们的配置都是往分布式开发方向靠近的。
+否则的话，我们就上本地svn仓储、&lt;a href=&quot;https://trac.edgewall.org/&quot;&gt;trac&lt;/a&gt; (&lt;a href=&quot;https://zh.wikipedia.org/wiki/Trac&quot;&gt;wikipedia&lt;/a&gt;)、本地开发服务器了。（我真这样做过，trac系统svn本地服务器什么的，不过只有我一个人用着玩）&lt;/p&gt;
+
+&lt;p&gt;我觉得离岸工作，将是以后的趋势。
+毕竟网络会越来越快的，沟通会越来越方便（（全息）视频聊天会议），但是出行会越来越堵。&lt;/p&gt;
+
+&lt;p&gt;先人一步，早点学习，总好过追着吃尘。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-本地开发服务器&quot;&gt;本地开发服务器&lt;/h2&gt;
+&lt;p&gt;啊，那还本地服务器什么，既然离岸开发都是趋势了？！&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-首先&quot;&gt;首先&lt;/h3&gt;
+&lt;p&gt;首先，是趋势但是还没到，现在网还很值钱，而且就算是以后要离岸，也得先锻炼个2~4年才靠谱啊！
+比如通过结对编程来锻炼，那得我在这边写，你在那边同步的看，并且可以聊天说说我哪里没写对。
+而且人是需要有社会交流的，码农们你们不靠上班见见人，锻炼一下交际能力，以后怎么混社会啊？！
+而且也不是真的所有人都互相不见面的。总而言之，以后部分项目组会通过离岸开发，部分会要求定期见面，还有的会要挤在一起写代码。
+现在就已经存在这三类项目组了，会变的只是存在的比例而已。
+而且那些个完全不需要见面的项目组，快结束的时候总是会想聚在一次见个面吃个饭什么的。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-其次&quot;&gt;其次&lt;/h3&gt;
+&lt;p&gt;其次，不要说公司了，在家庭里，甚至只有我一个人，如果经济允许，那我也要搞服务器的啊！比如家庭服务器啊。
+强调便携性的笔记本，性能永远会是一个坎，唯一的解决办法就是做图像投射，也就是用类似teamviewer的软件，操作另外一个系统。当网络相应速度（UDP）降低到1ms以下且带宽大于2GB/s时，这就会发生，笔记本主要变成了输入输出设备了！这个时候，另外那个系统不就是本地服务器嘛？！（现在可以考虑做便携式输入输出设备兼超高速无线网络连接的专利了）
+好，不说这么远。家庭服务器没事挂了bt下载，到家了用upnp转发一下视频到电视机（投影仪）上，不也是绝佳的体验吗？&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-正经说&quot;&gt;正经说&lt;/h3&gt;
+&lt;p&gt;那本地开发服务器相对远程开发服务器有什么优势呢？
+对，上面说了，只有网络问题。&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;公网请求，速度最少100ms左右吧。你ping一下百度。在ping一下我们的本地服务器。看看差别。&lt;/li&gt;
+  &lt;li&gt;带宽：下行一般还好，如果对方不设限，快的时候可以到2.5MB/s，但是上传，别提了100KB/s已经感谢天感谢地，还得感谢同事没有嫌你卡着网。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果千兆带宽不设限，那不用往下看了，我们就用远程吧。&lt;/p&gt;
+
+&lt;p&gt;本地开发服务器可用作这几个功能：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;加速服务： 如果有经常性，集中，大量的下载需求，而且网并不快的话，可以考虑加速服务，比如我们的npm加速。&lt;/li&gt;
+  &lt;li&gt;文件仓储： 如果文件仓储很大，而且网特别是上行并不快的话，可以考虑做本地文件仓储。不过我们的npm仓储并不作为例子，因为真的要实现的话，我会上aliyun。&lt;/li&gt;
+  &lt;li&gt;开发测试：如果网并不快的话，可以开发的时候，多考虑使用本地开发服务器。&lt;/li&gt;
+  &lt;li&gt;文件共享：似乎用不上，我研究下开了方便一下大家吧。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;heading-性能&quot;&gt;性能&lt;/h2&gt;
+&lt;p&gt;我们暂时不需要强的服务器，对cpu、mem、硬盘的要求都几近无。
+不过我已经看上某宝上某二手服务器主板DIY之后的产品了。
+做个&lt;a href=&quot;https://item.taobao.com/item.htm?id=526957500191&quot;&gt;广告&lt;/a&gt;。(不是我的店，只是好想买)
+你们如果要弄游戏主机的话，可以考虑这样搞，除了耗电高，发热大，开机慢，没有任何不好的。&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="develop-server" /><summary type="html">上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。</summary></entry><entry><title type="html">代码仓储（git vs svn)</title><link href="/blog/2016/05/27/code-repository-git-vs-svn/" rel="alternate" type="text/html" title="代码仓储（git vs svn)" /><published>2016-05-27T23:46:38+08:00</published><updated>2016-05-27T23:46:38+08:00</updated><id>/blog/2016/05/27/code-repository-git-vs-svn</id><content type="html" xml:base="/blog/2016/05/27/code-repository-git-vs-svn/">&lt;p&gt;个人感觉git比起svn有着太多的优势了。
+本文议论一下git和svn，以及团队协作的开发模式。
+&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-svn开发模式&quot;&gt;SVN开发模式&lt;/h2&gt;
+&lt;p&gt;在CVS年代，甚至到SVN的年代，许多中小型开发团队的开发流程是这样的：
+&lt;a href=&quot;http://blog.sina.com.cn/s/blog_6168c7aa0101ph0q.html&quot;&gt;这个&lt;/a&gt;说得挺清楚的。
+一般有两种开发方式。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-集中式开发&quot;&gt;集中式开发&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;开始一天新的开发工作，打开电脑，从trunk中同步所有代码到本地。&lt;/li&gt;
+  &lt;li&gt;改改改。&lt;/li&gt;
+  &lt;li&gt;差不多1个小时了，这个过程没写完，先这样吧能编译就行，开始提交版本。&lt;/li&gt;
+  &lt;li&gt;同步trunk到本地，解决conflict，上传。&lt;/li&gt;
+  &lt;li&gt;看看离下班还有多久，大于30分钟则去2。&lt;/li&gt;
+  &lt;li&gt;晃到下班走人。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;heading-分散式开发&quot;&gt;分散式开发&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;新功能开发，分配任务。分配到任务qqq。&lt;/li&gt;
+  &lt;li&gt;创建从trunk中检出（checkout）所有文件到本地；创建branches/dev_1.1.2_qqq文件夹，提交所有文件到该文件夹（于是创建了分支，是copy过去的）。&lt;/li&gt;
+  &lt;li&gt;改改改。&lt;/li&gt;
+  &lt;li&gt;提交到branches/dev_1.1.2_qqq。&lt;/li&gt;
+  &lt;li&gt;完成qqq了吗？没有则跳转到3。&lt;/li&gt;
+  &lt;li&gt;合并branches/dev_1.1.2_qqq到trunk，解决所有冲突问题。&lt;/li&gt;
+  &lt;li&gt;中途随时下班可以upload所有东西到branches/dev_1.1.2_qqq，随时上班可以从branches/dev_1.1.2_qqq同步所有东西下来。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;heading-svn与git的区别&quot;&gt;svn与git的区别&lt;/h2&gt;
+&lt;p&gt;感觉其实跟使用git差不了太多是吧？
+看看这篇&lt;a href=&quot;https://github.com/xirong/my-git/blob/master/why-git.md&quot;&gt;my-git&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;我觉得其中最大的区别是：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;内容控制git是以“行”为单位的，更关注变化；而svn是以文件为单位的，更关注区别；所以svn更容易&lt;a href=&quot;http://blog.csdn.net/windone0109/article/details/4857044&quot;&gt;产生冲突&lt;/a&gt;（好像就没办法auto merge好么！）。&lt;/li&gt;
+  &lt;li&gt;git（和hg）是分布式仓储，而svn（和cvs）是集中式的。什么意思呢？那是svn所有的提交检出操作，都是联网进行的，都是跟服务器通信的，没有本地仓储。&lt;/li&gt;
+  &lt;li&gt;速度。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;heading-冲突&quot;&gt;冲突&lt;/h3&gt;
+&lt;p&gt;你看看刚刚&lt;a href=&quot;http://blog.csdn.net/windone0109/article/details/4857044&quot;&gt;这个博客&lt;/a&gt;里怎么写的：&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;如何降低冲突解决的复杂度：
+1、当文档编辑完成后，尽快提交，频繁的提交/更新可以降低在冲突发生的概率，以及发生时解决冲突的复杂度。
+2、在提交时，写上明确的message，方便以后查找用户更新的原因，毕竟随着时间的推移，对当初更新的原因有可能会遗忘
+3、养成良好的使用习惯，使用SVN时每次都是先提交，后更新。每天早上打开后，首先要从版本库获取最新版本。每天下班前必须将已经编辑过的文档都提交到版本库。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;就是提交、提交、提交！更新、更新、更新！
+很容易就改同一个文件好不好！
+只要改同一个文件就是冲突！
+是冲突就得自己处理！&lt;/p&gt;
+
+&lt;h4 id=&quot;heading-注意&quot;&gt;注意&lt;/h4&gt;
+&lt;p&gt;不过实际上，git merge的时候，如果同样两个文件被修改，即使合并成功了，也应该自己评审一遍。
+因为自动合并是会出问题的，比如&lt;a href=&quot;http://coolshell.cn/articles/11112.html&quot;&gt;由苹果的低级Bug想到的&lt;/a&gt;这篇文章。
+自动合并是基于文本(行)而不是基于语法，所以有可能发生上述问题。&lt;/p&gt;
+
+&lt;p&gt;不管怎样，自动合并简直就是神器！！快谢谢它。&lt;/p&gt;
+
+&lt;h3 id=&quot;heading-集中式-vs-分布式-仓储&quot;&gt;集中式 vs 分布式 仓储&lt;/h3&gt;
+&lt;p&gt;git在刚刚学习的时候觉得很奇怪，working directory是什么啊，local repository是什么啊，checkout 和 pull 还有merge又是什么鬼！
+的确这个比svn的commit/update复杂一点点，那是因为这相当于在本地架设了一个svn服务器，并提供了简单灵活的同步管理工具好不好！&lt;/p&gt;
+
+&lt;p&gt;有人觉得集中式仓储还是有好处的，比如代码安全性，防盗啊！
+难道svn就不能盗走了吗？我有朋友的亲戚公司的代码被程序员删了走人的。离职前把代码拷走更是正常不过。
+说真的，防抄袭这种事情只能靠程序员的个人职业操守、和签署的非竞协议。&lt;/p&gt;
+
+&lt;p&gt;本地分支啊，多爽啊！&lt;/p&gt;
+
+&lt;p&gt;对，还没说到重点&lt;/p&gt;
+&lt;h4 id=&quot;heading-重点&quot;&gt;重点&lt;/h4&gt;
+&lt;p&gt;重点是，一旦连不上svn服务器你就傻逼了。在公司万一svn服务器一卡一断网，就可以喝咖啡放假了。更别提什么回家写、咖啡厅图书馆写、边做火车边写什么的。
+你checkout一个代码，等通过svn服务器；提交一个代码，得通过svn服务器；查一个日志，得通过svn服务器；对比一个改动，得通过svn服务器。
+而且，就算在公司局域网里，svn操作也非、常、慢！&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-集中式-vs-分散式-开发&quot;&gt;集中式 vs 分散式 开发&lt;/h2&gt;
+&lt;p&gt;不管是git还是svn，都有集中式和分散式开发方式的区别。（其实这里分散式和分布式是一个意思，我沿用某篇引用博客的说法，而他使用这个说法估计是为了不要引起误解）&lt;/p&gt;
+
+&lt;p&gt;我是强烈推荐分散式开发的，正如我强烈推荐分布式代码管理一样。
+当然我不认为“各自开发3个月，然后凑在一起试一下，然后合并代码”是对的。
+分散式开发中，一个临时开发分支的生命周期应该是几小时至几天不等。如果一个临时开发分支需要存活十几天甚至一两个月的话，考虑拆分任务。&lt;/p&gt;
+
+&lt;p&gt;正因为分散式开发对分支高度的需求，使得分布式仓储对比集中式仓储有着极大的优势。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-速度&quot;&gt;速度&lt;/h2&gt;
+&lt;p&gt;git的速度大大大于svn的速度，具体原因涉及其具体实现，不解释。
+git支持本地文件、ssh、git、http四种协议，口味很广。&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-二进制&quot;&gt;二进制&lt;/h2&gt;
+&lt;p&gt;我们现在更多的是git。git关注于文本文件的变化，它的观察是以“行”为单位的。
+通常我不希望在我们的git仓储中带上二进制文件如：doc、jpg、png、gif、mp3、avi等，甚至是pdf。（希望用html或者md来代替）
+CVS和SVN对文本文件和二进制文件的口味比较不挑，经常研发经理会把编译好的安装包，服务器打包文件，文档（doc+jpg），甚至连一些需要预安装的库和程序也打包进来，仓储起来。
+似乎是因为git不管你二进制的东西是什么，它都会帮你压缩一遍，而像刚刚说的jpg、mp3，还有一些个zip、mkv等文件是压不了多少空间的，压缩反倒浪费时间。
+这里涉及其设计哲学。git设计者认为你就不应该往这里扔大的文件，不是我不对，是你不会用。git主要面向文本文件（最好是源码）、以及小文件（比如小于10kb）。
+而二进制文件，你不压怎么知道压不压地动呢？那些个压不动的文件之所以压不动，那是因为他们已经被压过了。
+压过的文件你就更不应该往git里传了。&lt;/p&gt;
+
+&lt;p&gt;似乎这里svn还有点用，可以用来放文档、压缩包、安装包（安装包也自动被压过的）啊！
+但是&lt;a href=&quot;https://git-lfs.github.com/&quot;&gt;lfs&lt;/a&gt;一出，就没svn什么事了，除非那些懒得学lfs的。（我有空研究一下lfs）&lt;/p&gt;
+
+&lt;h2 id=&quot;heading-适用性&quot;&gt;适用性&lt;/h2&gt;
+&lt;p&gt;基于文本文件的项目，都应该考虑git。
+git更强于移动开发。
+强于大规模项目。
+强于超小型项目。&lt;/p&gt;
+
+&lt;p&gt;svn只适用于中小型项目组，而且他们懒得学git的。
+或者设计师什么的，而且他们的作品都是二进制的那种。&lt;/p&gt;
+
+&lt;p&gt;而且svn还得自己买研发服务器，否则网一卡你就哭。&lt;/p&gt;</content><author><name>吴思稣</name><email>i@wusisu.com</email></author><category term="git" /><category term="svn" /><category term="协作模式" /><summary type="html">个人感觉git比起svn有着太多的优势了。 本文议论一下git和svn，以及团队协作的开发模式。</summary></entry></feed>

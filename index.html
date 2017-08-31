@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>Sunmile 吴思稣 | 思麦阳光</title>
+<meta property="og:title" content="Sunmile 吴思稣" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="思麦阳光" />
+<meta property="og:description" content="思麦阳光" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<script type="application/ld+json">
+{"name":"Sunmile 吴思稣","description":"思麦阳光","author":{"@type":"Person","name":"吴思稣"},"@type":"WebSite","url":"/","publisher":null,"image":null,"headline":"Sunmile 吴思稣","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/home.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <ul id="menu">
+        <li data-menuanchor="bio"><a href="#bio">Biography</a></li>
+        <li data-menuanchor="social"><a href="#social">Social Links</a></li>
+    </ul>
+
+    <div id="section0" class="section" data-name="bio">
+
+        <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+
+        <div class="headings animated fadeInLeft">
+            <h1>wusisu</h1>
+            <h2>想写点代码</h2>
+            <div></div>
+        </div>
+        <a class="btn-continue animated bounce" title="更多" href="#social"></a>
+    </div>
+
+    <div id="section1" class="section" data-name="social">
+        <h1 class="animated hidden">
+            <a class="btn-enter btn-light" title="进入博客" href="/blog/">进入博客</a>
+        </h1>
+        <div class="social-links animated hidden">
+            <a class="btn-light ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+            
+                <a class="btn-light ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+            
+            
+                
+            
+                
+                    <a class="btn-light ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        </div>
+    </div>
+
+    <script src="/assets/javascripts/jquery.fullPage.min.js"></script>
+<script src="/assets/javascripts/jquery.easing.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $.fn.fullpage({
+            anchors: ['bio', 'social'],
+            css3: true,
+            fixedElements: '.site-notice',
+            menu: '#menu',
+            navigation: true,
+            navigationPosition: 'right',
+            resize: false,
+            scrollingSpeed: 500,
+
+            afterLoad: function (anchorLink, index) {
+                if (index === 1) {
+                    $('#section0 .headings, #section0').removeClass('hidden').addClass('fadeInDown');
+                    $('.btn-continue').removeClass('hidden').addClass('bounce');
+                }
+                if (index === 2) {
+                    $('#section1 h1, #section1 .social-links').removeClass('hidden').addClass('fadeInUp');
+                }
+            },
+
+            onLeave: function (index, direction) {
+                if (index == 1 && direction == 'down') {
+                    $('#section0 .headings, #section0 .btn-continue').addClass('hidden').removeClass('bounce fadeInDown fadeInLeft');
+                }
+                if (index == 2 && direction == 'up') {
+                    $('#section1 h1, #section1 .social-links').addClass('hidden').removeClass('fadeInUp');
+                }
+            }
+        });
+    });
+
+</script>
+
+
+</body>
+
+</html>

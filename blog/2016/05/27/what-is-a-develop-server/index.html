@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>开发服务器是干嘛的 | Sunmile 吴思稣</title>
+<meta property="og:title" content="开发服务器是干嘛的" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。" />
+<meta property="og:description" content="上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-05-28T00:30:37+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2016/05/27/what-is-a-develop-server/","publisher":null,"image":null,"headline":"开发服务器是干嘛的","dateModified":"2016-05-28T00:30:37+08:00","datePublished":"2016-05-28T00:30:37+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2016/05/27/what-is-a-develop-server/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="develop-server" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">开发服务器是干嘛的</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2016-05-28T00:30:37+08:00" datetime="2016-05-28T00:30:37+08:00">May 27, 2016 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#develop-server" title="develop-server">develop-server <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>上网搜了半天也没找到“开发服务器”是用来干嘛的，我就按照自己的经验讲一讲好了。</p>
+
+<!--more-->
+
+<h3 id="heading-代码文件仓储">代码（文件）仓储</h3>
+<p>开发服务器最重要的功能是提供仓储功能。我们用的最多的是代码仓储。
+在CVS年代，甚至到SVN的年代，许多中小型开发团队都会配备开发服务器，然后写的代码没问题了，提交上去，ok收工。
+然后CVS和SVN对文本文件和二进制文件的口味比较不挑（我感觉的，git就比较区分两种文件了，而且一般希望不处理二进制文件），会把编译好的安装包，服务器打包文件，文档（doc+jpg），甚至连一些需要预安装的库和程序也打包进来，仓储起来。</p>
+
+<h4 id="heading-git">GIT</h4>
+<p>我们现在更多的是git。git关注于文本文件的变化，它的观察是以“行”为单位的。
+通常我不希望在我们的git仓储中带上二进制文件如：doc、jpg、png、gif、mp3、avi等，甚至是pdf。（希望用html或者md来代替）
+我们使用针对GIT的SAAS就好了，比如coding.net的git服务。</p>
+
+<h3 id="heading-开发测试">开发测试</h3>
+
+<h4 id="heading-api">API</h4>
+<p>比如我们的API服务器。</p>
+
+<h4 id="heading-编译运行">编译、运行</h4>
+<p>c++什么的，编译一个程序跑20分钟很正常，在自己机子上跑吗？太浪费时间了。
+搞一个cpu、mem很强的服务器，把代码提交上去，跑编译。对，20分钟是服务器上跑的时间。
+运行，搞个虚拟机来跑跑程序试一下。（我们一般不需要，装一个Firefox就够了。当然如果需要兼容ie，我就把这个任务交给你们这群使用windows的吧！）</p>
+
+<h4 id="heading-trace系统">Trace系统</h4>
+<p>就是bug追踪什么的。
+像我们发任务啊，以前发任务不用这个，但是他们有工作汇报提交（windows共享）。
+说到文件共享，我们原来公司的切图仔（美工的昵称）会切好图，然后扔到windows共享里，然后大吼一声（或者QQ一抖）：文件放在xxx文件夹里。
+还有一些公司运维相关也会被扔到开发服务器里来。像公司邮箱。</p>
+
+<h3 id="heading-总结">总结</h3>
+<p>在在线服务不成熟、网络慢、协作开发平台几近无的10年前，没有一个开发服务器（一般是本地）的，都不好意思叫研发团队！
+他们也会备份，中小型团队一般每几个月拿个硬盘插到服务器上，拷贝一下。</p>
+
+<h2 id="heading-远程开发服务器">远程开发服务器</h2>
+<p>比如我们的aliyun服务器。</p>
+
+<h3 id="heading-优点">优点</h3>
+<p>远程开发服务器的优势在于远程！
+一般他们会叫做“云服务器”，其实就是自己的一个云主机。
+托管了宽带、cpu、内存、用电。性价比高、稳定、安全。
+文件丢失的可能性降低到原来模式的万分之一。</p>
+
+<h3 id="heading-缺点">缺点</h3>
+<p>唯一不爽的就是占用公网宽带。相对的带来好处是哪里开发都一样。</p>
+
+<h3 id="heading-干什么">干什么</h3>
+<p>上面说的开发服务器该做的一切事情，都可以用远程开发服务器来做。</p>
+
+<h2 id="heading-代码仓储服务--协作服务">代码仓储服务 &amp;&amp; 协作服务</h2>
+<p>如github、如coding.net。
+可以在我们的开发服务器中剥离这些功能。
+毕竟部署和维护这些服务还是挺累人的。</p>
+
+<h2 id="heading-离岸工作">离岸工作</h2>
+<p>其实不管是git仓储、coding.net的协作工具、aliyun的云开发服务器。
+我们的配置都是往分布式开发方向靠近的。
+否则的话，我们就上本地svn仓储、<a href="https://trac.edgewall.org/">trac</a> (<a href="https://zh.wikipedia.org/wiki/Trac">wikipedia</a>)、本地开发服务器了。（我真这样做过，trac系统svn本地服务器什么的，不过只有我一个人用着玩）</p>
+
+<p>我觉得离岸工作，将是以后的趋势。
+毕竟网络会越来越快的，沟通会越来越方便（（全息）视频聊天会议），但是出行会越来越堵。</p>
+
+<p>先人一步，早点学习，总好过追着吃尘。</p>
+
+<h2 id="heading-本地开发服务器">本地开发服务器</h2>
+<p>啊，那还本地服务器什么，既然离岸开发都是趋势了？！</p>
+
+<h3 id="heading-首先">首先</h3>
+<p>首先，是趋势但是还没到，现在网还很值钱，而且就算是以后要离岸，也得先锻炼个2~4年才靠谱啊！
+比如通过结对编程来锻炼，那得我在这边写，你在那边同步的看，并且可以聊天说说我哪里没写对。
+而且人是需要有社会交流的，码农们你们不靠上班见见人，锻炼一下交际能力，以后怎么混社会啊？！
+而且也不是真的所有人都互相不见面的。总而言之，以后部分项目组会通过离岸开发，部分会要求定期见面，还有的会要挤在一起写代码。
+现在就已经存在这三类项目组了，会变的只是存在的比例而已。
+而且那些个完全不需要见面的项目组，快结束的时候总是会想聚在一次见个面吃个饭什么的。</p>
+
+<h3 id="heading-其次">其次</h3>
+<p>其次，不要说公司了，在家庭里，甚至只有我一个人，如果经济允许，那我也要搞服务器的啊！比如家庭服务器啊。
+强调便携性的笔记本，性能永远会是一个坎，唯一的解决办法就是做图像投射，也就是用类似teamviewer的软件，操作另外一个系统。当网络相应速度（UDP）降低到1ms以下且带宽大于2GB/s时，这就会发生，笔记本主要变成了输入输出设备了！这个时候，另外那个系统不就是本地服务器嘛？！（现在可以考虑做便携式输入输出设备兼超高速无线网络连接的专利了）
+好，不说这么远。家庭服务器没事挂了bt下载，到家了用upnp转发一下视频到电视机（投影仪）上，不也是绝佳的体验吗？</p>
+
+<h3 id="heading-正经说">正经说</h3>
+<p>那本地开发服务器相对远程开发服务器有什么优势呢？
+对，上面说了，只有网络问题。</p>
+<ol>
+  <li>公网请求，速度最少100ms左右吧。你ping一下百度。在ping一下我们的本地服务器。看看差别。</li>
+  <li>带宽：下行一般还好，如果对方不设限，快的时候可以到2.5MB/s，但是上传，别提了100KB/s已经感谢天感谢地，还得感谢同事没有嫌你卡着网。</li>
+</ol>
+
+<p>如果千兆带宽不设限，那不用往下看了，我们就用远程吧。</p>
+
+<p>本地开发服务器可用作这几个功能：</p>
+<ol>
+  <li>加速服务： 如果有经常性，集中，大量的下载需求，而且网并不快的话，可以考虑加速服务，比如我们的npm加速。</li>
+  <li>文件仓储： 如果文件仓储很大，而且网特别是上行并不快的话，可以考虑做本地文件仓储。不过我们的npm仓储并不作为例子，因为真的要实现的话，我会上aliyun。</li>
+  <li>开发测试：如果网并不快的话，可以开发的时候，多考虑使用本地开发服务器。</li>
+  <li>文件共享：似乎用不上，我研究下开了方便一下大家吧。</li>
+</ol>
+
+<h2 id="heading-性能">性能</h2>
+<p>我们暂时不需要强的服务器，对cpu、mem、硬盘的要求都几近无。
+不过我已经看上某宝上某二手服务器主板DIY之后的产品了。
+做个<a href="https://item.taobao.com/item.htm?id=526957500191">广告</a>。(不是我的店，只是好想买)
+你们如果要弄游戏主机的话，可以考虑这样搞，除了耗电高，发热大，开机慢，没有任何不好的。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2016/05/27/code-repository-git-vs-svn/" title="上一篇 '代码仓储（git vs svn)'"> ← 代码仓储（git vs svn)</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2016/05/27/wechat-oauth2/" title="下一篇 '微信Oauth2授权'">微信Oauth2授权 → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

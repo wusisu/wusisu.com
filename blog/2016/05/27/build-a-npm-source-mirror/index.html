@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>构建npm镜像源 | Sunmile 吴思稣</title>
+<meta property="og:title" content="构建npm镜像源" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="其实有淘宝npm镜像个人是完全无必要做npm的镜像的。 一般的研发团队的宽带也无须考虑。但是我们是长城宽带。 正好公司里有一台没啥事做的服务器，决定上手搞一个npm的镜像。" />
+<meta property="og:description" content="其实有淘宝npm镜像个人是完全无必要做npm的镜像的。 一般的研发团队的宽带也无须考虑。但是我们是长城宽带。 正好公司里有一台没啥事做的服务器，决定上手搞一个npm的镜像。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-05-27T23:46:38+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"其实有淘宝npm镜像个人是完全无必要做npm的镜像的。 一般的研发团队的宽带也无须考虑。但是我们是长城宽带。 正好公司里有一台没啥事做的服务器，决定上手搞一个npm的镜像。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2016/05/27/build-a-npm-source-mirror/","publisher":null,"image":null,"headline":"构建npm镜像源","dateModified":"2016-05-27T23:46:38+08:00","datePublished":"2016-05-27T23:46:38+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2016/05/27/build-a-npm-source-mirror/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="local-npm,npm,mirror" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">构建npm镜像源</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2016-05-27T23:46:38+08:00" datetime="2016-05-27T23:46:38+08:00">May 27, 2016 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#local-npm" title="local-npm">local-npm <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#mirror" title="mirror">mirror <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#npm" title="npm">npm <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>其实有<a href="https://npm.taobao.org/">淘宝npm镜像</a>个人是完全无必要做npm的镜像的。
+一般的研发团队的宽带也无须考虑。但是我们是<a href="http://club.autohome.com.cn/bbs/thread-a-100024-44338780-1.html">长城宽带</a>。
+正好公司里有一台没啥事做的服务器，决定上手搞一个npm的镜像。</p>
+
+<!--more-->
+
+<h2 id="heading-原因">原因</h2>
+<ol>
+  <li>npm安装的时间很长，同时依赖于公司带宽。</li>
+  <li>大规模/大量前端项目，可以把公用的模块独立成npm模块，单独管理。所以需要私有的npm仓储。</li>
+</ol>
+
+<h2 id="heading-解决方案">解决方案</h2>
+<p>我们暂时不需要第二点，故使用<a href="https://github.com/nolanlawson/local-npm">local-npm</a>解决npm加速问题就好了。</p>
+<blockquote>
+  <p>以后可以考虑换用<a href="https://github.com/cnpm/cnpmjs.org">cnpmjs</a>来做私有仓储。</p>
+</blockquote>
+
+<h3 id="heading-fullfatdb">fullfatdb</h3>
+<p>fullfat就是全脂的意思，主要相对下面skim脱脂而言的。
+<del>我们使用淘宝的fullfatdb: https://registry.npm.taobao.org/</del>
+用的是官网的，因为local-npm对cnpmjs的镜像不兼容。给local-npm发了个<a href="https://github.com/nolanlawson/local-npm/issues/123">issue</a>，暂时没空去贡献代码。</p>
+
+<blockquote>
+  <p>当前 registry.npm.taobao.org 是从 r.cnpmjs.org 进行全量同步的
+Our public registry: r.cnpmjs.org, syncing from registry.npmjs.org</p>
+</blockquote>
+
+<h3 id="heading-skimdb">skimdb</h3>
+<p><a href="http://dict.youdao.com/w/skim">skim</a>是脱脂的意思。去掉了上面fullfatdb中二进制的部分，应该只是metadata部分，大概0.95GB大小。
+使用官方的 https://skimdb.npmjs.com/registry 进行克隆。因为暂时好像还没有国内镜像源。</p>
+
+<h2 id="heading-部署">部署</h2>
+<p>服务部署在本地开发服务器上。</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>npm install -g <span class="nb">local</span>-npm
+mkdir npm
+<span class="nb">cd </span>npm
+<span class="c">#local-npm -r https://registry.npm.taobao.org #不能使用-r taobao了，因为taobao是cnpmjs架设的，而-r只支持local-npm或者源站。</span>
+<span class="nb">local</span>-npm -u http://192.168.174.233:5080 <span class="c">#必须用上-u，否则会败，如果已经败了，在client上记得跑`npm cache clean`清理一下。</span>
+</code></pre>
+</div>
+
+<h2 id="heading-使用">使用</h2>
+<p>不管用不用本地的npm服务源，都推荐用<a href="https://github.com/Pana/nrm">nrm</a>进行npm源控制。就像不管你用不用多版本node，都推荐你使用<a href="http://nvm.sh">nvm</a>一样。</p>
+
+<h3 id="heading-nrm">nrm</h3>
+<p>安装<code class="highlighter-rouge">npm install -g nrm</code>，使用很简单。
+可以有</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>nrm <span class="nb">test
+</span>nrm use taobao
+</code></pre>
+</div>
+<p>其实不用test直接use就好了。
+你可以直接输入<code class="highlighter-rouge">nrm</code>看看所有命令。
+其中有一个比较有趣的<code class="highlighter-rouge">nrm home taobao</code>。</p>
+
+<h3 id="heading-local-dev">local-dev</h3>
+<blockquote>
+  <p>[local-dev] 用 192.168.174.233 代替。 (公司内部服务器地址)</p>
+</blockquote>
+
+<p>使用nrm添加新源：</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>nrm add <span class="nb">local </span>http://[local-dev]:5080 http://[local-dev]:5080/_browse
+nrm use <span class="nb">local</span>
+</code></pre>
+</div>
+<p>就可以了。
+现在你可以<code class="highlighter-rouge">nrm test</code>看看谁延迟更低。</p>
+
+<h3 id="heading-search">search</h3>
+<p>对，如果你注意到了的话，http://[local-dev]:5080/_browse 是我们的一个npm搜索引擎。
+可以通过</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>nrm home <span class="nb">local</span>
+</code></pre>
+</div>
+<p>查看。</p>
+
+<h2 id="heading-注意">注意</h2>
+<p>由于只同步了0.95GB的metadata，二进制包并未同步。第一次下载模块时可能比平时慢（二进制包由server从官网下载，比淘宝要慢；当然查metadata还是块一些的）
+第二次就快了。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2016/03/20/building-micro-service-to-run-script/" title="上一篇 '构建运行脚本的微服务'"> ← 构建运行脚本的微服务</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2016/05/27/code-repository-git-vs-svn/" title="下一篇 '代码仓储（git vs svn)'">代码仓储（git vs svn) → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

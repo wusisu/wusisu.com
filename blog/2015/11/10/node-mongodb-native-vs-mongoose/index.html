@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>node-mongodb-native VS mongoose | Sunmile 吴思稣</title>
+<meta property="og:title" content="node-mongodb-native VS mongoose" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="nodejs很适合做http数据服务器，用上express之类的框架很容易就搭出一套http service来。然后数据库感觉就跟mongodb很搭，这样子一套下来全都是javascript技术栈。但是nodejs跟mongodb之间的接口应该选择哪一个呢？" />
+<meta property="og:description" content="nodejs很适合做http数据服务器，用上express之类的框架很容易就搭出一套http service来。然后数据库感觉就跟mongodb很搭，这样子一套下来全都是javascript技术栈。但是nodejs跟mongodb之间的接口应该选择哪一个呢？" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-11-10T16:20:26+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"nodejs很适合做http数据服务器，用上express之类的框架很容易就搭出一套http service来。然后数据库感觉就跟mongodb很搭，这样子一套下来全都是javascript技术栈。但是nodejs跟mongodb之间的接口应该选择哪一个呢？","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2015/11/10/node-mongodb-native-vs-mongoose/","publisher":null,"image":null,"headline":"node-mongodb-native VS mongoose","dateModified":"2015-11-10T16:20:26+08:00","datePublished":"2015-11-10T16:20:26+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2015/11/10/node-mongodb-native-vs-mongoose/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="nodejs,mongodb,node-mongodb-native,mongoose" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">node-mongodb-native VS mongoose</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2015-11-10T16:20:26+08:00" datetime="2015-11-10T16:20:26+08:00">November 10, 2015 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#mongodb" title="mongodb">mongodb <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#mongoose" title="mongoose">mongoose <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#node-mongodb-native" title="node-mongodb-native">node-mongodb-native <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#nodejs" title="nodejs">nodejs <span>6</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>nodejs很适合做http数据服务器，用上express之类的框架很容易就搭出一套http service来。然后数据库感觉就跟mongodb很搭，这样子一套下来全都是javascript技术栈。但是nodejs跟mongodb之间的接口应该选择哪一个呢？</p>
+
+<!--more-->
+
+<p>我关注到的库有两个：<a href="https://github.com/mongodb/node-mongodb-native">node-mongodb-native</a>和<a href="https://github.com/Automattic/mongoose">mongoose</a>。</p>
+
+<p>node-mongodb-native是mongodb的官方nodejs封装。其实应该说是简单封装。使用它的感觉就像是直接在shell里用<code class="highlighter-rouge">mongo</code>操作，特别的灵活以及效率。甚爱之。<br />
+mongoose是一个深封装的<a href="https://zh.wikipedia.org/wiki/%E5%AF%B9%E8%B1%A1%E5%85%B3%E7%B3%BB%E6%98%A0%E5%B0%84">ORM</a>库。需要像mysql设计表结构那样子设计Schema，然后把Schema具象为Model，然后可以面向对象的使用数据库了。</p>
+
+<hr />
+
+<p>我是更爱高效灵活地node-mongodb-native的，然而使用之有一点不好，就是：感觉这个项目的team并没有花多少心思和时间在这上面，更多地是应付的做了一个专业的封装。<br />
+我这是什么意思呢？<br />
+node-mongodb-native库的封装很专业，但是文档是比较应付式的，阅读和资讯获取都挺难，至少我做了近一个月还是不知道web service应该怎样<strong>标准</strong>地去连接数据库（应该说怎么用数据库，连接一次然后一直使用这个db呢；还是每次用<code class="highlighter-rouge">db.open</code>；<code class="highlighter-rouge">db.open</code>是不是表示从连接池里拿一个连接？）。其开发人员是从对接口的封装出发来做这个项目，而不是从用户使用的角度来开发和写文档。<br />
+我在网上看人家对这两者的比较时看到他们说，大概意思是使用node-mongodb-native会比较折腾。<br />
+我现在认为这里的折腾不是指写起来麻烦，而是没有响应的指导和合适的文档，许多事情需要去读源码，去做测试（这种测试还不好做，也许某种用法低并发的时候适用，多了就不行了）。</p>
+
+<p>这个项目的开发人员总该知道怎样使用吧！你倒是做个demo或者在doc中写出来啊！你倒是告诉我是不是针对每一个http请求都应该发起一个db的connection啊！你告诉我是不是对每一个http请求不用发起新connection但是需要重新<code class="highlighter-rouge">db.open</code>啊！你不说谁知道在web service中应该怎么用这个库啊！！！文档里每一个demo都是连接数据库-打开db-写入-关闭连接。也是醉了。</p>
+
+<p>最后的结果是遇到不知名原因的bug，一个<code class="highlighter-rouge">collection.find</code>返回的<code class="highlighter-rouge">promise</code>卡<code class="highlighter-rouge">pending</code>，然后找不到原因和答案，放弃之。</p>
+
+<hr />
+
+<p>mongoose这种把动态类型当作静态类型的思路其实我是不喜欢的（其实不是静态类型，只是做类型转换啦，我是说我不喜欢这样的思路而已）。就像我不喜欢微软的TypeSrcipt（包括ES6）给javascript弄上静态类型和class一样，人家javascript明明本身是基于prototype设计的，硬是弄上class搞毛！<br />
+但是mongoose的开发看来是熟知node-mongodb-native的源码的，这二次封装（在node-mongodb-native的基础上进行封装）然后提供了较为完善的文档，也算是一个合适的选择。</p>
+
+<p>这里有两个点需要注意一下：</p>
+
+<ol>
+  <li>我现在使用的mongoose版本是4.2.5，其依赖<code class="highlighter-rouge">"mpromise": "0.5.4"</code>。也就是说mongoose返回的<code class="highlighter-rouge">Promise</code>是<code class="highlighter-rouge">mpromise</code>提供的promise实现，而这个promise实现实测不支持<code class="highlighter-rouge">promise.reject</code>方法。</li>
+  <li>同样是这个版本。我使用文档里说的方法<code class="highlighter-rouge">mongoose.model('User', userSchema);</code>注册Model。这个时候model是被注册到<code class="highlighter-rouge">mongoose.models</code>的。于是在<code class="highlighter-rouge">mocha -w</code>的时候，会出现<code class="highlighter-rouge">OverwriteModelError</code>，估计是<code class="highlighter-rouge">mocha -w</code>的时候里面的机制并不会清空<code class="highlighter-rouge">mongoose.models</code>，然后重载model注册模块，于是报错。根据<a href="https://github.com/Automattic/mongoose/issues/1251">issue#1251</a>，网友提供的<code class="highlighter-rouge">mongoose.models = {};mongoose.modelSchemas = {};</code>似乎可以解决这个问题。比较逗的是<strong>aheckmann</strong>拼死不认为这是一个bug，一直说我们用错了。没太注意看，不过也许用<code class="highlighter-rouge">connection.model('User', userSchema);</code>来注册也能解决这个问题，这也许是aheckmann的意思。</li>
+</ol>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2015/11/10/convert-character-encoding-in-javascript/" title="上一篇 'javascript下的编码转换'"> ← javascript下的编码转换</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2015/11/17/how-to-know-how-many-formal-parameter-of-a-javascript-function/" title="下一篇 '如何获得一个函数的形参个数'">如何获得一个函数的形参个数 → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

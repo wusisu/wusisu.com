@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>代码仓储（git vs svn) | Sunmile 吴思稣</title>
+<meta property="og:title" content="代码仓储（git vs svn)" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="个人感觉git比起svn有着太多的优势了。 本文议论一下git和svn，以及团队协作的开发模式。" />
+<meta property="og:description" content="个人感觉git比起svn有着太多的优势了。 本文议论一下git和svn，以及团队协作的开发模式。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-05-27T23:46:38+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"个人感觉git比起svn有着太多的优势了。 本文议论一下git和svn，以及团队协作的开发模式。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2016/05/27/code-repository-git-vs-svn/","publisher":null,"image":null,"headline":"代码仓储（git vs svn)","dateModified":"2016-05-27T23:46:38+08:00","datePublished":"2016-05-27T23:46:38+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2016/05/27/code-repository-git-vs-svn/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="git,svn,协作模式" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">代码仓储（git vs svn)</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2016-05-27T23:46:38+08:00" datetime="2016-05-27T23:46:38+08:00">May 27, 2016 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#git" title="git">git <span>2</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#svn" title="svn">svn <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#协作模式" title="协作模式">协作模式 <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>个人感觉git比起svn有着太多的优势了。
+本文议论一下git和svn，以及团队协作的开发模式。
+<!--more--></p>
+
+<h2 id="heading-svn开发模式">SVN开发模式</h2>
+<p>在CVS年代，甚至到SVN的年代，许多中小型开发团队的开发流程是这样的：
+<a href="http://blog.sina.com.cn/s/blog_6168c7aa0101ph0q.html">这个</a>说得挺清楚的。
+一般有两种开发方式。</p>
+
+<h3 id="heading-集中式开发">集中式开发</h3>
+<ol>
+  <li>开始一天新的开发工作，打开电脑，从trunk中同步所有代码到本地。</li>
+  <li>改改改。</li>
+  <li>差不多1个小时了，这个过程没写完，先这样吧能编译就行，开始提交版本。</li>
+  <li>同步trunk到本地，解决conflict，上传。</li>
+  <li>看看离下班还有多久，大于30分钟则去2。</li>
+  <li>晃到下班走人。</li>
+</ol>
+
+<h3 id="heading-分散式开发">分散式开发</h3>
+<ol>
+  <li>新功能开发，分配任务。分配到任务qqq。</li>
+  <li>创建从trunk中检出（checkout）所有文件到本地；创建branches/dev_1.1.2_qqq文件夹，提交所有文件到该文件夹（于是创建了分支，是copy过去的）。</li>
+  <li>改改改。</li>
+  <li>提交到branches/dev_1.1.2_qqq。</li>
+  <li>完成qqq了吗？没有则跳转到3。</li>
+  <li>合并branches/dev_1.1.2_qqq到trunk，解决所有冲突问题。</li>
+  <li>中途随时下班可以upload所有东西到branches/dev_1.1.2_qqq，随时上班可以从branches/dev_1.1.2_qqq同步所有东西下来。</li>
+</ol>
+
+<h2 id="heading-svn与git的区别">svn与git的区别</h2>
+<p>感觉其实跟使用git差不了太多是吧？
+看看这篇<a href="https://github.com/xirong/my-git/blob/master/why-git.md">my-git</a>。</p>
+
+<p>我觉得其中最大的区别是：</p>
+<ol>
+  <li>内容控制git是以“行”为单位的，更关注变化；而svn是以文件为单位的，更关注区别；所以svn更容易<a href="http://blog.csdn.net/windone0109/article/details/4857044">产生冲突</a>（好像就没办法auto merge好么！）。</li>
+  <li>git（和hg）是分布式仓储，而svn（和cvs）是集中式的。什么意思呢？那是svn所有的提交检出操作，都是联网进行的，都是跟服务器通信的，没有本地仓储。</li>
+  <li>速度。</li>
+</ol>
+
+<h3 id="heading-冲突">冲突</h3>
+<p>你看看刚刚<a href="http://blog.csdn.net/windone0109/article/details/4857044">这个博客</a>里怎么写的：</p>
+<blockquote>
+  <p>如何降低冲突解决的复杂度：
+1、当文档编辑完成后，尽快提交，频繁的提交/更新可以降低在冲突发生的概率，以及发生时解决冲突的复杂度。
+2、在提交时，写上明确的message，方便以后查找用户更新的原因，毕竟随着时间的推移，对当初更新的原因有可能会遗忘
+3、养成良好的使用习惯，使用SVN时每次都是先提交，后更新。每天早上打开后，首先要从版本库获取最新版本。每天下班前必须将已经编辑过的文档都提交到版本库。</p>
+</blockquote>
+
+<p>就是提交、提交、提交！更新、更新、更新！
+很容易就改同一个文件好不好！
+只要改同一个文件就是冲突！
+是冲突就得自己处理！</p>
+
+<h4 id="heading-注意">注意</h4>
+<p>不过实际上，git merge的时候，如果同样两个文件被修改，即使合并成功了，也应该自己评审一遍。
+因为自动合并是会出问题的，比如<a href="http://coolshell.cn/articles/11112.html">由苹果的低级Bug想到的</a>这篇文章。
+自动合并是基于文本(行)而不是基于语法，所以有可能发生上述问题。</p>
+
+<p>不管怎样，自动合并简直就是神器！！快谢谢它。</p>
+
+<h3 id="heading-集中式-vs-分布式-仓储">集中式 vs 分布式 仓储</h3>
+<p>git在刚刚学习的时候觉得很奇怪，working directory是什么啊，local repository是什么啊，checkout 和 pull 还有merge又是什么鬼！
+的确这个比svn的commit/update复杂一点点，那是因为这相当于在本地架设了一个svn服务器，并提供了简单灵活的同步管理工具好不好！</p>
+
+<p>有人觉得集中式仓储还是有好处的，比如代码安全性，防盗啊！
+难道svn就不能盗走了吗？我有朋友的亲戚公司的代码被程序员删了走人的。离职前把代码拷走更是正常不过。
+说真的，防抄袭这种事情只能靠程序员的个人职业操守、和签署的非竞协议。</p>
+
+<p>本地分支啊，多爽啊！</p>
+
+<p>对，还没说到重点</p>
+<h4 id="heading-重点">重点</h4>
+<p>重点是，一旦连不上svn服务器你就傻逼了。在公司万一svn服务器一卡一断网，就可以喝咖啡放假了。更别提什么回家写、咖啡厅图书馆写、边做火车边写什么的。
+你checkout一个代码，等通过svn服务器；提交一个代码，得通过svn服务器；查一个日志，得通过svn服务器；对比一个改动，得通过svn服务器。
+而且，就算在公司局域网里，svn操作也非、常、慢！</p>
+
+<h2 id="heading-集中式-vs-分散式-开发">集中式 vs 分散式 开发</h2>
+<p>不管是git还是svn，都有集中式和分散式开发方式的区别。（其实这里分散式和分布式是一个意思，我沿用某篇引用博客的说法，而他使用这个说法估计是为了不要引起误解）</p>
+
+<p>我是强烈推荐分散式开发的，正如我强烈推荐分布式代码管理一样。
+当然我不认为“各自开发3个月，然后凑在一起试一下，然后合并代码”是对的。
+分散式开发中，一个临时开发分支的生命周期应该是几小时至几天不等。如果一个临时开发分支需要存活十几天甚至一两个月的话，考虑拆分任务。</p>
+
+<p>正因为分散式开发对分支高度的需求，使得分布式仓储对比集中式仓储有着极大的优势。</p>
+
+<h2 id="heading-速度">速度</h2>
+<p>git的速度大大大于svn的速度，具体原因涉及其具体实现，不解释。
+git支持本地文件、ssh、git、http四种协议，口味很广。</p>
+
+<h2 id="heading-二进制">二进制</h2>
+<p>我们现在更多的是git。git关注于文本文件的变化，它的观察是以“行”为单位的。
+通常我不希望在我们的git仓储中带上二进制文件如：doc、jpg、png、gif、mp3、avi等，甚至是pdf。（希望用html或者md来代替）
+CVS和SVN对文本文件和二进制文件的口味比较不挑，经常研发经理会把编译好的安装包，服务器打包文件，文档（doc+jpg），甚至连一些需要预安装的库和程序也打包进来，仓储起来。
+似乎是因为git不管你二进制的东西是什么，它都会帮你压缩一遍，而像刚刚说的jpg、mp3，还有一些个zip、mkv等文件是压不了多少空间的，压缩反倒浪费时间。
+这里涉及其设计哲学。git设计者认为你就不应该往这里扔大的文件，不是我不对，是你不会用。git主要面向文本文件（最好是源码）、以及小文件（比如小于10kb）。
+而二进制文件，你不压怎么知道压不压地动呢？那些个压不动的文件之所以压不动，那是因为他们已经被压过了。
+压过的文件你就更不应该往git里传了。</p>
+
+<p>似乎这里svn还有点用，可以用来放文档、压缩包、安装包（安装包也自动被压过的）啊！
+但是<a href="https://git-lfs.github.com/">lfs</a>一出，就没svn什么事了，除非那些懒得学lfs的。（我有空研究一下lfs）</p>
+
+<h2 id="heading-适用性">适用性</h2>
+<p>基于文本文件的项目，都应该考虑git。
+git更强于移动开发。
+强于大规模项目。
+强于超小型项目。</p>
+
+<p>svn只适用于中小型项目组，而且他们懒得学git的。
+或者设计师什么的，而且他们的作品都是二进制的那种。</p>
+
+<p>而且svn还得自己买研发服务器，否则网一卡你就哭。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2016/05/27/build-a-npm-source-mirror/" title="上一篇 '构建npm镜像源'"> ← 构建npm镜像源</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2016/05/27/what-is-a-develop-server/" title="下一篇 '开发服务器是干嘛的'">开发服务器是干嘛的 → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>nodejs日志控件的选择 | Sunmile 吴思稣</title>
+<meta property="og:title" content="nodejs日志控件的选择" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="做服务器开发，必不可少的一个模块是日志系统。 在Java界，有大牛log4j，感觉都可以毫无顾虑地直接选择这个模块。但是在nodejs就没有这样事实上的标准了。 于是我花了些时间研究哪个nodejs日志模块好用。" />
+<meta property="og:description" content="做服务器开发，必不可少的一个模块是日志系统。 在Java界，有大牛log4j，感觉都可以毫无顾虑地直接选择这个模块。但是在nodejs就没有这样事实上的标准了。 于是我花了些时间研究哪个nodejs日志模块好用。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-03-18T23:31:05+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"做服务器开发，必不可少的一个模块是日志系统。 在Java界，有大牛log4j，感觉都可以毫无顾虑地直接选择这个模块。但是在nodejs就没有这样事实上的标准了。 于是我花了些时间研究哪个nodejs日志模块好用。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2016/03/18/my-selection-of-logger-utility-in-nodejs/","publisher":null,"image":null,"headline":"nodejs日志控件的选择","dateModified":"2016-03-18T23:31:05+08:00","datePublished":"2016-03-18T23:31:05+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2016/03/18/my-selection-of-logger-utility-in-nodejs/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="nodejs,logger,service,morgan,bunyan" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">nodejs日志控件的选择</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2016-03-18T23:31:05+08:00" datetime="2016-03-18T23:31:05+08:00">March 18, 2016 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#bunyan" title="bunyan">bunyan <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#logger" title="logger">logger <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#morgan" title="morgan">morgan <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#nodejs" title="nodejs">nodejs <span>6</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#service" title="service">service <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>做服务器开发，必不可少的一个模块是日志系统。
+在Java界，有大牛<a href="https://zh.wikipedia.org/wiki/Log4j">log4j</a>，感觉都可以毫无顾虑地直接选择这个模块。但是在nodejs就没有这样事实上的标准了。
+于是我花了些时间研究哪个nodejs日志模块好用。</p>
+
+<!--more-->
+
+<h2 id="heading-结论">结论</h2>
+
+<p>最后我选中的日志插件是</p>
+<ul>
+  <li><a href="https://github.com/trentm/node-bunyan">bunyan</a>: a simple and fast JSON logging module for node.js services</li>
+  <li><a href="https://github.com/expressjs/morgan">morgan</a>: HTTP request logger middleware for node.js</li>
+</ul>
+
+<h2 id="heading-评价">评价</h2>
+
+<h3 id="heading-morgan">morgan</h3>
+<p>morgan是expressjs默认带着的超简单的日志系统，专门用来生成http的请求记录。其生成的日志个人感觉于Nginx的日志十分类似。用来产生一个http请求日志再好不过了。
+使用非常简单：</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">import</span> <span class="nx">morgan</span> <span class="nx">from</span> <span class="s1">'koa-morgan'</span>
+<span class="kr">export</span> <span class="kr">const</span> <span class="nx">loggerMiddleware</span> <span class="o">=</span> <span class="nx">morgan</span><span class="p">(</span><span class="s1">'combined'</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">loggerMiddleware</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>我这里用的是koa2，所以用封装过的morgan来写。</p>
+
+<h3 id="heading-bunyan">bunyan</h3>
+<p>bunyan是一个会产生JSON格式的日志的日志模块。
+其实可读性不高。其提供了把json转成易读性高日志的阅读工具，但是总觉得不太实用。
+不过当我们把它作为一种记载重要操作的操作记录工具（这属于业务功能而不是技术功能了）时，就挺合适使用了。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kr">const</span> <span class="nx">Writable</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'stream'</span><span class="p">).</span><span class="nx">Writable</span>
+<span class="kr">const</span> <span class="nx">writeStream</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Writable</span><span class="p">({</span> <span class="na">objectMode</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span>
+<span class="kr">const</span> <span class="nx">DEBUG</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DEBUG</span>
+<span class="nx">writeStream</span><span class="p">.</span><span class="nx">_write</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">log</span><span class="p">,</span> <span class="nx">encoding</span><span class="p">,</span> <span class="nx">next</span><span class="p">){</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">log</span><span class="p">.</span><span class="nx">level</span><span class="o">&gt;</span><span class="mi">40</span><span class="p">)</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">log</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">DEBUG</span> <span class="o">&amp;&amp;</span> <span class="nx">log</span><span class="p">.</span><span class="nx">level</span><span class="o">&lt;=</span><span class="mi">40</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">log</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">log</span><span class="p">.</span><span class="nx">level</span><span class="o">&lt;</span><span class="mi">30</span><span class="p">)</span> <span class="k">return</span>
+  <span class="kd">let</span> <span class="nx">item</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Model</span>
+  <span class="nx">item</span><span class="p">.</span><span class="nx">obj</span> <span class="o">=</span> <span class="nx">log</span>
+  <span class="nx">item</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="nx">next</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kr">import</span> <span class="nx">bunyan</span> <span class="nx">from</span> <span class="s1">'bunyan'</span>
+<span class="kr">export</span> <span class="kr">const</span> <span class="nx">logger</span> <span class="o">=</span> <span class="nx">bunyan</span><span class="p">.</span><span class="nx">createLogger</span><span class="p">({</span>
+  <span class="na">name</span><span class="p">:</span><span class="s1">'app'</span><span class="p">,</span>
+  <span class="na">src</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="na">streams</span><span class="p">:</span> <span class="p">[{</span>
+    <span class="na">level</span><span class="p">:</span> <span class="s1">'trace'</span><span class="p">,</span>
+    <span class="na">type</span><span class="p">:</span> <span class="s1">'raw'</span><span class="p">,</span>
+    <span class="na">stream</span><span class="p">:</span> <span class="nx">writeStream</span>
+  <span class="p">}]</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<p>写入一个记录的方式是:</p>
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="nx">logger</span><span class="p">.</span><span class="nx">info</span><span class="p">({</span><span class="na">message</span><span class="p">:</span><span class="s1">'hello world!'</span><span class="p">})</span>
+</code></pre>
+</div>
+
+<p>这里用的比较复杂。本来bunyan的那个streams直接放console或者文件流是非常简明的，在这里我创建了一个writeStream来接受数据流，然后再写一个回调来把数据流存入mongodb中。这样的用例在业务上是非常常见的。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2015/11/17/how-to-know-how-many-formal-parameter-of-a-javascript-function/" title="上一篇 '如何获得一个函数的形参个数'"> ← 如何获得一个函数的形参个数</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2016/03/20/building-micro-service-to-run-script/" title="下一篇 '构建运行脚本的微服务'">构建运行脚本的微服务 → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>构建运行脚本的微服务 | Sunmile 吴思稣</title>
+<meta property="og:title" content="构建运行脚本的微服务" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="我女朋友正在学习python，写的脚本都是从stdin输入，从stdout输出的；而我又是一个js全栈，感觉写一个简单的python脚本调用的界面+nodejs微服务应该很有意思。" />
+<meta property="og:description" content="我女朋友正在学习python，写的脚本都是从stdin输入，从stdout输出的；而我又是一个js全栈，感觉写一个简单的python脚本调用的界面+nodejs微服务应该很有意思。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-03-20T21:15:46+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"我女朋友正在学习python，写的脚本都是从stdin输入，从stdout输出的；而我又是一个js全栈，感觉写一个简单的python脚本调用的界面+nodejs微服务应该很有意思。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2016/03/20/building-micro-service-to-run-script/","publisher":null,"image":null,"headline":"构建运行脚本的微服务","dateModified":"2016-03-20T21:15:46+08:00","datePublished":"2016-03-20T21:15:46+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2016/03/20/building-micro-service-to-run-script/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="nodejs,python,micro-service,socket.io" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">构建运行脚本的微服务</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2016-03-20T21:15:46+08:00" datetime="2016-03-20T21:15:46+08:00">March 20, 2016 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#micro-service" title="micro-service">micro-service <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#nodejs" title="nodejs">nodejs <span>6</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#python" title="python">python <span>3</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#socket.io" title="socket.io">socket.io <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>我<a href="https://github.com/eniffesun">女朋友</a>正在<a href="https://github.com/1ta/study_python">学习python</a>，写的脚本都是从stdin输入，从stdout输出的；而我又是一个js全栈，感觉写一个简单的python脚本调用的界面+nodejs微服务应该很有意思。</p>
+
+<!--more-->
+
+<p>#demo
+<a href="http://ali.wusisu.com/sun/">http://ali.wusisu.com/sun/</a></p>
+
+<h2 id="heading-child_process">child_process</h2>
+<p>首先我要先实现在nodejs中调用python，并且要转发输入输出流。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="s1">'use strict'</span>
+<span class="kd">var</span> <span class="nx">child_process</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'child_process'</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">cp</span> <span class="o">=</span> <span class="nx">child_process</span><span class="p">.</span><span class="nx">spawn</span><span class="p">(</span><span class="s1">'python3'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'./files/circumference.py'</span><span class="p">])</span>
+<span class="nx">cp</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">)</span>
+<span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">cp</span><span class="p">.</span><span class="nx">stdin</span><span class="p">)</span>
+<span class="nx">cp</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'close'</span><span class="p">,</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="nx">code</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<p>做的事情简单清晰易懂：</p>
+<ol>
+  <li>用child_process的spawn调用一个python3进程cp。</li>
+  <li>转发cp的标准输出到当前程序的标准输出（命令行）。</li>
+  <li>转发当前程序的标准输入到cp的标准输入。</li>
+  <li>监听cp的结束事件。</li>
+</ol>
+
+<p>结果是调用这个<a href="https://github.com/1ta/study_python/blob/master/wrapper.js"><code class="highlighter-rouge">node wrapper.js</code></a>跟直接调用<code class="highlighter-rouge">python3 ./files/circumference.py</code>没有任何区别。</p>
+
+<h2 id="heading-曲折">曲折</h2>
+
+<p>事实上开发的时候走了点弯路的。
+我很幼稚的认为，使用<code class="highlighter-rouge">Content-Type: text/event-stream</code>能够解决问题。
+只要client端发起一个<code class="highlighter-rouge">POST</code>请求，但不马上结束连接，而是持续的发送内容；server端使用<code class="highlighter-rouge">event-stream</code>持续地返回内容。
+事实上我已经把模拟的client端和server端写好了，也完全达到了目标效果，然并卵，在js里没法用ajax慢慢地发<code class="highlighter-rouge">POST</code>请求。</p>
+
+<p>event-stream: 告诉client/browser服务器会慢慢地返回内容，你收到多少直接拿去用就好。</p>
+
+<h2 id="heading-socketio"><a href="https://github.com/socketio/socket.io">socket.io</a></h2>
+<p>socket.io也并没有什么需要说的了，就简单推荐一下，好用。</p>
+
+<h3 id="heading-websocket">websocket</h3>
+
+<p>在socket.io之前我考虑过直接上websocket，因为之前用event-stream实现的时候并没有使用第三方的包，直接用原生的<code class="highlighter-rouge">http</code>然后把<code class="highlighter-rouge">stream</code>给<code class="highlighter-rouge">pipe</code>出去可爽了。于是就想着原生上websocket。
+nodejs的<a href="http://npm.taobao.org/mirrors/node/latest/docs/api/http.html#http_event_upgrade">文档</a>其实提到了一下websocket的。文中让我响应<code class="highlighter-rouge">upgrade</code>事件然后可以拿到一个socket然后可以pipe给它自己。
+然后就没有更多关于怎么发起一个websocket的资讯了。然而在google/baidu等搜索引擎中，并未能找到关于websocket足够给我用的实践，全都在不清不楚地大概说websocket有什么好处，像什么样子。（如果以后有空，自己实践一下，再上文章）
+反倒是有了新的东西，在要求upgrade的时候要带一个base64的key，然后在服务器response的时候要给另外一个encrypted的base64。然后还不说这个key是干什么的，简直就是各种不清不楚。</p>
+
+<h2 id="heading-文件遍历promise">文件遍历/Promise</h2>
+<p>之前习惯用<a href="http://babeljs.io/docs/plugins/preset-stage-3/">stage-2</a>的<a href="http://babeljs.io/docs/plugins/transform-async-to-generator/">async</a>来写同步执行。不过现在babel还没有全面进入node-v5.7.1，要用async需要引入许多babel包和配置，正好前面都做比较原生的事情，于是想着用原生来写。
+首先考虑了callback写法，遍历<code class="highlighter-rouge">./files</code>目录后调用回调。结果发现<code class="highlighter-rouge">Promise.all</code>还是做了不少事情，把这个写到我的递归函数中还是比较难看的，于是还是上Promise吧。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">lookForwardFiles</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">path</span><span class="p">){</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">((</span><span class="nx">res</span><span class="p">,</span><span class="nx">rej</span><span class="p">)</span><span class="o">=&gt;</span><span class="p">{</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">stat</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">stat</span><span class="p">)</span><span class="o">=&gt;</span><span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">res</span><span class="p">([])</span>
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">stat</span><span class="p">.</span><span class="nx">isDirectory</span><span class="p">())</span> <span class="k">return</span> <span class="nx">res</span><span class="p">([</span><span class="nx">path</span><span class="p">])</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">readdir</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span><span class="o">=&gt;</span><span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">res</span><span class="p">([])</span>
+        <span class="kd">var</span> <span class="nx">allP</span> <span class="o">=</span> <span class="nx">files</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">f</span><span class="o">=&gt;</span><span class="nx">lookForwardFiles</span><span class="p">(</span><span class="nx">path</span> <span class="o">+</span> <span class="s1">'/'</span> <span class="o">+</span> <span class="nx">f</span><span class="p">))</span>
+        <span class="nx">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">allP</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="o">=&gt;</span><span class="nx">res</span><span class="p">([].</span><span class="nx">concat</span><span class="p">.</span><span class="nx">apply</span><span class="p">([],</span><span class="nx">data</span><span class="p">)))</span>
+      <span class="p">})</span>
+    <span class="p">})</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>node支持了arrow functions还是蛮爽的，就是用<code class="highlighter-rouge">=&gt;</code>来代替'function'。
+这里用到了一个技巧<code class="highlighter-rouge">[].concat.apply([],data)</code>，可以把形如<code class="highlighter-rouge">[[1,2],[3],[4],5]</code>的data转化为<code class="highlighter-rouge">[1,2,3,4,5]</code>。
+其实也可以用</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="nx">data</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">all</span><span class="p">,</span><span class="nx">d</span><span class="p">)</span><span class="o">=&gt;</span><span class="nx">all</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">d</span><span class="p">),[])</span>
+</code></pre>
+</div>
+
+<p>来代替。</p>
+
+<h2 id="heading-commit">commit</h2>
+<p>给个当前<a href="https://github.com/1ta/study_python/tree/2d46040207109f936cb75d054bae7683a8591203">commit</a>的链接，万一以后不用socket.io上原生websocket了呢。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2016/03/18/my-selection-of-logger-utility-in-nodejs/" title="上一篇 'nodejs日志控件的选择'"> ← nodejs日志控件的选择</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2016/05/27/build-a-npm-source-mirror/" title="下一篇 '构建npm镜像源'">构建npm镜像源 → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>

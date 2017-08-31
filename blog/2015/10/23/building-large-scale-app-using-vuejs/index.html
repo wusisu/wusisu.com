@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+<!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>使用vuejs开发大型SPA | Sunmile 吴思稣</title>
+<meta property="og:title" content="使用vuejs开发大型SPA" />
+<meta name="author" content="吴思稣" />
+<meta property="og:locale" content="zh" />
+<meta name="description" content="一直觉得react太折腾，ng太庞大，knockout太老土，像我需要开发大型SPA的，总是找不到路可走。如果你有跟我一样的感受，那来试试vuejs吧。" />
+<meta property="og:description" content="一直觉得react太折腾，ng太庞大，knockout太老土，像我需要开发大型SPA的，总是找不到路可走。如果你有跟我一样的感受，那来试试vuejs吧。" />
+<meta property="og:site_name" content="Sunmile 吴思稣" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-10-23T23:47:10+08:00" />
+<script type="application/ld+json">
+{"name":null,"description":"一直觉得react太折腾，ng太庞大，knockout太老土，像我需要开发大型SPA的，总是找不到路可走。如果你有跟我一样的感受，那来试试vuejs吧。","author":{"@type":"Person","name":"吴思稣"},"@type":"BlogPosting","url":"/blog/2015/10/23/building-large-scale-app-using-vuejs/","publisher":null,"image":null,"headline":"使用vuejs开发大型SPA","dateModified":"2015-10-23T23:47:10+08:00","datePublished":"2015-10-23T23:47:10+08:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2015/10/23/building-large-scale-app-using-vuejs/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<meta name="keywords" content="vuejs,SPA,javascript" />
+
+
+
+
+
+<link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Sunmile | 吴思稣" />
+    <link href='/assets/stylesheets/blog.css' rel="stylesheet" type="text/css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+<script>window.Modernizr || document.write('<script src="/assets/javascripts/modernizr-2.8.3.min.js"><\/script>')</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="/assets/javascripts/jquery-3.2.1.min.js"><\/script>')
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+<script>
+    window.Pace || document.write('<script src="/assets/javascripts/pace.min.js"><\/script>')
+</script>
+
+
+</head>
+
+<body>
+    <!--[if IE]>
+    <p class="site-notice">您正在使用一个过时的网页浏览器。请<a href="http://browsehappy.com/" target="_blank">升级您的浏览器</a>或<a href="http://www.google.com/chromeframe/?redirect=true" target="_blank">开启 Google Chrome Frame</a> 来提高用户体验。</p>
+<![endif]-->
+<noscript>
+    <p class="site-notice">本网站需要 JavaScript。请查阅指南来<a href="http://www.enable-javascript.com/" target="_blank">给您的浏览器开启 JavaScript 功能</a>。</p>
+</noscript>
+
+    <div class="nav-wrapper overlay-wrapper">
+    <div class="nav-form overlay-form">
+        <span class="overlay-header menu">菜单</span>
+        <a class="btn-close">关闭</a>
+        <div class="results">
+            <ul>
+                <li><a href="/blog/categories/">文章分类</a></li>
+                <li><a href="/blog/tags/">文章标签</a></li>
+                <li><a href="/">关于</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="search-wrapper overlay-wrapper">
+    <div class="search-form overlay-form">
+        <input type="text" class="overlay-header search-field" placeholder="搜索...">
+        <a class="btn-close">关闭</a>
+        <ul class="results"></ul>
+    </div>
+</div>
+
+
+    <div id="page" class="hentry">
+        <header class="the-header">
+    <div class="unit-head">
+        <div class="unit-inner unit-head-inner">
+            <nav class="nav-global">
+                <ul>
+                    <li class="logo nav-link">
+                        <button class="btn-menu" title="菜单"></button>
+                        <a href="/blog/">Sunmile | 吴思稣</a>
+                        <!--[if !IE]> -->
+                        <button class="btn-search" title="搜索"></button>
+                        <!-- <![endif]-->
+                    </li>
+                    <li class="nav-link"><a title="文章分类" href="/blog/categories/">文章分类</a></li>
+                    <li class="nav-link"><a title="文章标签" href="/blog/tags/">文章标签</a></li>
+                    <!--[if !IE]> -->
+                    <li class="nav-link"><a title="搜索" class="btn-search" href="#">搜索</a></li>
+                    <!-- <![endif]-->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+
+        <div class="body animated fadeInDown" role="main">
+            <div class="unit-body">
+                <div class="unit-inner unit-body-inner">
+                    <div class="entry-content">
+                        <article class="unit-article layout-post">
+    <div class="unit-inner unit-article-inner">
+        <div itemscope itemtype="http://schema.org/Article" class="content">
+            <header>
+                <div class="unit-head">
+                    <div class="unit-inner unit-head-inner">
+                        <h1 class="entry-title" itemprop="name">使用vuejs开发大型SPA</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bd article-content">
+                <div class="entry-content">
+                    <div class="meta">
+                        <p class="date-publish">
+                            发表信息:
+                            <time itemprop="datePublished" class="date-pub updated"
+                                title="2015-10-23T23:47:10+08:00" datetime="2015-10-23T23:47:10+08:00">October 23, 2015 </time>
+                            by
+                            <a class="author" href="/" rel="author" title="显示作者">
+                                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                    <span itemprop="name">吴思稣</span>
+                                </span>
+                            </a>
+                            
+                            
+                        </p>
+                        <ul class="list-category list-linear">
+                            <li class="list-head">文章分类: </li>
+                             
+     
+        <li>
+            <a href="/blog/categories/#develop" title="develop">
+            develop <span>23</span></a>
+        </li>
+    
+
+
+
+                        </ul>
+                        <ul class="list-tag list-linear">
+                            <li class="list-head">文章标签: </li>
+                             
+    
+        
+        <li>
+            <a href="/blog/tags/#SPA" title="SPA">SPA <span>1</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#javascript" title="javascript">javascript <span>4</span></a>
+        </li>
+    
+        
+        <li>
+            <a href="/blog/tags/#vuejs" title="vuejs">vuejs <span>1</span></a>
+        </li>
+    
+
+
+
+
+                        </ul>
+                    </div>
+                    <div itemprop="articleBody">
+                        <p>一直觉得react太折腾，ng太庞大，knockout太老土，像我需要开发大型SPA的，总是找不到路可走。如果你有跟我一样的感受，那来试试vuejs吧。
+<!--more--></p>
+
+<h2 id="heading-vuejs">vuejs</h2>
+<p><a href="cn.vuejs.org" title="vuejs官网">vuejs</a>是一个在美国的中国小伙子开发的一个数据绑定库，有着简洁的代码风格。<br />
+作者尤雨溪<a href="http://www.zhihu.com/question/36292298/answer/67049956?utm_campaign=webshare&amp;utm_source=weibo&amp;utm_medium=zhihu" title="维护一个大型开源项目是怎样的体验？">开发并维护着这个项目</a>，项目的两个核心：</p>
+<blockquote>
+  <p>本质上 Vue.js 做的是两件事情，数据绑定和视图层组件化。</p>
+</blockquote>
+
+<p>都非常吸引我，因为我认为大型SPA必须要采取组件式开发，另外我需要一个纯粹（不要像angular这么繁杂）的数据绑定库。</p>
+
+<p>vuejs在实现上很吸引人的一点是，它跟<a href="knockoutjs.com" title="knockoutjs">knockoutjs</a>一样，采取<em>依赖链</em>而不是脏数据 检查的方式来实现绑定，这样其运算量不会因为监听器的数量增加而增加，在一定程度上保证了大型SPA的性能。</p>
+
+<h2 id="heading-components">components</h2>
+<p>见vuejs文档的components一章。<br />
+另见vuejs文档<em>创建大型应用</em>一章。这章提供了一种.vue后缀的开发方法。由于组件应该是包括了<em>模版、逻辑代码、样式</em>的，于是怎么布置这些个文件的位置就是一种学问了，通常我们会给每一个component一个文件夹，index.js作为入口。而.vue可以把三样内容放在一个.vue文件里。这样文件树突然就变得超级的干净简洁了。（你可以从他的demo看到他使用stylus、coffeescript、jade全都是最简洁的语言）<br />
+<del>但是我放弃了使用.vue，虽然尤雨溪甚至提供了sublime显色插件，但是毕竟多了一层编译过程，有时候显色不正常还算小事，出了错不好定位那就比较耽误事儿了，所以我采取的是<a href="http://webpack.github.io/">webpack</a>+<a href="https://github.com/webpack/style-loader">style-loader</a>的解决方案，其实这也是<a href="https://github.com/vuejs/vueify">vueify</a>的工作方式(它使用的是<a href="https://github.com/substack/insert-css">insert-css</a>)，只是我使用更传统的布局，手动地加载罢了。</del></p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">vue</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'vue'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">genData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+  <span class="nx">require</span><span class="p">(</span><span class="s1">'style!./style.less'</span><span class="p">);</span>
+  <span class="k">return</span> <span class="p">{};</span>
+<span class="p">};</span>
+<span class="kd">var</span> <span class="nx">component</span> <span class="o">=</span> <span class="nx">vue</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="na">template</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./template.jade'</span><span class="p">)(),</span>
+  <span class="na">data</span><span class="p">:</span> <span class="nx">genData</span>
+<span class="p">})</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">component</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>当然了，webpack.config得相应配置上</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="nx">module</span><span class="err">:</span> <span class="p">{</span>
+  <span class="nl">loaders</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="na">test</span><span class="p">:</span> <span class="sr">/</span><span class="se">\.</span><span class="sr">jade$/</span><span class="p">,</span> <span class="na">loader</span><span class="p">:</span> <span class="s2">"jade-loader"</span><span class="p">},</span>
+    <span class="p">{</span> <span class="na">test</span><span class="p">:</span> <span class="sr">/</span><span class="se">\.</span><span class="sr">html$/</span><span class="p">,</span> <span class="na">loaders</span><span class="p">:</span> <span class="p">[</span><span class="s2">"raw-loader"</span><span class="p">]},</span>
+    <span class="p">{</span> <span class="na">test</span><span class="p">:</span> <span class="sr">/</span><span class="se">\.</span><span class="sr">less$/</span><span class="p">,</span> <span class="na">loaders</span><span class="p">:</span> <span class="p">[</span><span class="s2">"raw-loader"</span><span class="p">,</span><span class="s2">"less-loader"</span><span class="p">]},</span>
+    <span class="p">{</span> <span class="na">test</span><span class="p">:</span> <span class="sr">/</span><span class="se">\.</span><span class="sr">js$/</span><span class="p">,</span> <span class="na">exclude</span><span class="p">:</span> <span class="sr">/node_modules/</span><span class="p">,</span> <span class="na">loader</span><span class="p">:</span> <span class="s2">"babel-loader"</span><span class="p">}</span>
+<span class="p">]}</span>
+</code></pre>
+</div>
+
+<p><strong>updated：2016-03-14</strong> 还是用上了webpack + .vue的架构，没办法不用不行啊。
+特别是引入了babel之后就更难找到出错的地方了，不过接受这一设定的话，整个项目突然变简洁了。
+当然还是有难以定位出错点的问题，想其他办法解决吧。</p>
+
+<h2 id="heading-vue-router">vue-router</h2>
+<p><a href="http://vuejs.github.io/vue-router/zh-cn/">vue-router</a>提供了开发SPA所需的路由和历史功能，与vuejs配合那自然是真真好的。</p>
+
+<h2 id="heading-vuex">vuex</h2>
+<p><a href="http://vuejs.github.io/vuex/zh-cn/">vuex</a>提供了开发大型SPA的状态管理。</p>
+
+<h2 id="heading-后记">后记</h2>
+<p><a href="https://github.com/vuejs/vue/releases/tag/1.0.0">vuejs正式版1.0.0</a>于2015年10月27日终于面世了。</p>
+
+                    </div>
+                </div>
+            </div>
+            <footer class="unit-foot">
+                <div class="unit-inner unit-foot-inner">
+                    <div class="post-buttons">
+                        <a class="internal gotop" href="#page" title="返回顶部">返回顶部</a>
+                        
+                    </div>
+                    <nav class="pagination">
+                        
+                            <a class="internal" rel="prev" href="/blog/2014/10/16/remote-connect-mysql/" title="上一篇 '远程连接mysql'"> ← 远程连接mysql</a>
+                        
+                        
+                            <a class="internal" rel="next" href="/blog/2015/10/29/convert-hg-to-git-and-combine-gits/" title="下一篇 '从hg迁移到git，以及合并两个git'">从hg迁移到git，以及合并两个git → </a>
+                        
+                    </nav>
+                </div>
+            </footer>
+            <div class="misc-content">
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="the-footer">
+    <div class="unit-foot">
+        <div class="unit-inner unit-foot-inner">
+            <div class="misc vcard">
+                <div class="about">
+                    <h4><a href="/">关于</a></h4>
+                    
+                        <p>想写点代码</p>
+                    
+                    <p><small>本博客主题 <a href="https://github.com/yizeng/jekyll-theme-simple-texture" target="_blank">Simple Texture</a> 由 <a href="http://yizeng.me" target="_blank">Yi Zeng</a> 基于 <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> 开发.</small></p>
+                </div>
+                <div class="social-links">
+                    
+                        <a class="ico-gmail" href="mailto:i@wusisu.com" rel="me" target="_blank" title="email"></a>
+                    
+                    <a class="ico-rss" href="/feed.xml" rel="me" target="_blank" title="feed"></a>
+                    
+                        
+                    
+                        
+                            <a class="ico-github" href="https://github.com/wusisu" rel="me" target="_blank" title="github"></a>
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="internal back-to-top">返回顶部</a>
+</footer>
+
+    </div>
+
+    <script>
+$(document).ready(function () {
+    var offset = 50,
+        duration = 500,
+        width = 960;
+    $(window).scroll(function () {
+        if ($(window).width() > width) {
+            if ($(this).scrollTop() > offset) {
+                $('footer').css('top', '20px');
+                $('footer .back-to-top').fadeIn(duration);
+            } else {
+                $('footer').css('top', 'auto');
+                $('footer .back-to-top').fadeOut(duration);
+            }
+        }
+    });
+    $(window).resize(function () {
+        if ($(window).width() < width) {
+            $('footer').css('top', 'auto');
+            $('footer .back-to-top').fadeOut(duration);
+        }
+        if ($(window).width() >= width && $(this).scrollTop() > offset) {
+            $('footer').css('top', '20px');
+            $('footer .back-to-top').fadeIn(duration);
+        }
+    });
+
+    $('footer .back-to-top, .gotop').on('click', function (event) {
+        sendGaEvent('Blog', 'Back to Top', event.currentTarget);
+        event.preventDefault();
+        $('html, body').animate({
+            scrollTop: 0
+        }, duration);
+        return false;
+    });
+
+    $('.show-hidden').on('click', function () {
+        sendGaEvent('Post', 'Show Hidden', event.currentTarget);
+        $(this).parent().next().toggleClass("hidden");
+        $(this).toggleClass("hidden");
+    });
+});
+</script>
+
+<!-- Google Analytics Event tracking -->
+
+
+<!-- Show menu overlay + Jekyll Simple Search option -->
+<script src="/assets/javascripts/jekyll-search.jquery.js"></script>
+<script>
+$(document).ready(function () {
+    $('.search-field').simpleJekyllSearch({
+      jsonFile: '/search.json',
+      template: '<li><a href="{url}">{title} <span class="entry-date"><time datetime="{date}">{shortdate}</time></span></a></li>',
+      searchResults: '.search-wrapper .results',
+      searchResultsTitle: '<h4>搜索结果</h4>',
+      noResults: '<p>啊哈<br/><small>什么也没找到 :(</small></p>'
+    });
+});
+
+(function ($, window, undefined) {
+    var closeOverlay = function () {
+        $('.nav-wrapper, .search-wrapper').removeAttr('style');
+        $(".nav-form, .search-form").removeClass('active');
+        $("body").removeClass('nav-overlay search-overlay');
+    };
+
+    $('.nav-global .btn-search').on('click', function () {
+        $('.search-wrapper').css({display: "block"});
+        $(".search-form").addClass('active');
+        $(".search-form").find('input').focus();
+        $("body").addClass('search-overlay');
+    });
+
+    $('.nav-global .btn-menu').on('click', function () {
+        $('.nav-wrapper').css({display: "block"});
+        $(".nav-form").addClass('active');
+        $(".nav-form .search-field").prop('disabled', true);
+        $("body").addClass('nav-overlay');
+    });
+
+    $('.nav-wrapper .btn-close, .search-wrapper .btn-close').on('click', function () {
+        closeOverlay();
+    });
+
+    $(document).on('keyup', function (e) {
+        if (e.keyCode === 27) {
+            closeOverlay();
+        }
+    });
+})(jQuery, window);
+</script>
+
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-buttons.min.js'></script>
+<script src="/assets/javascripts/unveil/jquery.unveil.min.js"></script>
+
+<script>
+    window.jQuery.fancybox || document.write('<script src="/assets/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.4"><\/script>')
+    window.jQuery.fancybox.helpers.buttons || document.write('<script src="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5"><\/script>')
+</script>
+
+<script>
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/jquery.fancybox.css?v=2.1.4" type="text/css" />');
+    $("head").append('<link rel="stylesheet" href="/assets/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" />');
+    $(".post-image").fancybox({
+        prevEffect: 'none',
+        nextEffect: 'none',
+        closeBtn: true,
+        helpers: {
+            title: {
+                type: 'float'
+            }
+        }
+    });
+    $(document).ready(function () {
+        $(".post-image > img").unveil(450);
+    });
+</script>
+
+</body>
+
+</html>
