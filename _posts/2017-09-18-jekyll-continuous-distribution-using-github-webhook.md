@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 接受 Github Webhook 进行 Jekyll 持续部署
-tags: [continuous distribution,github,webhook,jekyll]
+tags: ["continuous distribution",github,webhook,jekyll]
 categories: develop
 date: 2017-09-18 15:07:36
 ---
