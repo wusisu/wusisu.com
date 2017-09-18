@@ -3,7 +3,7 @@ layout: post
 title: 接受 Github Webhook 进行 Jekyll 持续部署
 tags: ["continuous distribution",github,webhook,jekyll]
 categories: develop
-date: 2017-09-18 15:07:36
+date: "2017-09-18 15:07:36"
 ---
 
 由于[CNAME 和 MX 冲突的原因](https://www.zhihu.com/question/21128056)，我把我的个人博客（静态）部署在自己的 server 上了。
@@ -18,16 +18,41 @@ date: 2017-09-18 15:07:36
 
 （脚本竟然不在仓库里，迟点更新上来）
 接受 Webhook 的脚本：
+https://github.com/wusisu/wusisu.com/tree/00be243bdf0707302cb28e24d96273a9887f034f/server/blog_listen
 ```php
+<?php
+
+$payload = $_REQUEST['payload'];
+
+$payload = json_decode($payload);
+
+
+if ($payload->repository->full_name !== 'wusisu/wusisu.com') {
+  return 'not update';
+}
+
+if ($payload->ref !== 'refs/heads/master') {
+  return 'not update';
+}
+
+echo 'update blog';
+
+system('/root/repos/update_blog.sh');
 ```
 然后执行即可 `php -S 0.0.0.0:51234`
 
 执行部署的脚本：
 ```sh
+#!/bin/sh
+
+cd /root/repos/wusisu.com
+git fetch
+git reset --hard origin/master
+bundle exec jekyll build
+cp -r _site/* /web/wusisu.com/
 ```
 
 当然 GitHub 上需要配置 https://github.com/wusisu/wusisu.com/settings/hooks
 
 如此，我只用在 github 上创建文件，就能部署我的博客了。
 比如此文就是如此。
-
